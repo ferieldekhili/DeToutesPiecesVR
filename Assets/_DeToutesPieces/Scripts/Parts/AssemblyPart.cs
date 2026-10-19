@@ -38,8 +38,12 @@ namespace DeToutesPieces.Parts
         public event Action<bool> GrabbableChanged;
 
         private Rigidbody rb;
-        private Vector3 homePosition;
-        private Quaternion homeRotation;
+        // Pose de rangement exprimée dans le repère du parent d'origine : elle suit
+        // automatiquement le plan de travail quand sa hauteur est réglée.
+        private Vector3 homeLocalPosition;
+        private Quaternion homeLocalRotation;
+        private Vector3 HomePosition => homeParent != null ? homeParent.TransformPoint(homeLocalPosition) : homeLocalPosition;
+        private Quaternion HomeRotation => homeParent != null ? homeParent.rotation * homeLocalRotation : homeLocalRotation;
         private Transform homeParent;
         private float outOfReachTimer;
 
@@ -47,8 +51,7 @@ namespace DeToutesPieces.Parts
         {
             rb = GetComponent<Rigidbody>();
             homeParent = transform.parent;
-            homePosition = transform.position;
-            homeRotation = transform.rotation;
+            SetHomePose(transform.position, transform.rotation);
         }
 
         private void OnDisable() => HeldParts.Remove(this);
@@ -58,22 +61,22 @@ namespace DeToutesPieces.Parts
             if (State != PartState.Free) { outOfReachTimer = 0f; return; }
 
             bool outOfReach = transform.position.y < returnBelowHeight ||
-                              Vector3.Distance(transform.position, homePosition) > maxDistanceFromHome;
+                              Vector3.Distance(transform.position, HomePosition) > maxDistanceFromHome;
             outOfReachTimer = outOfReach ? outOfReachTimer + Time.deltaTime : 0f;
 
             if (outOfReachTimer > returnDelay)
             {
                 ReturnHome();
                 AssemblyManager.Instance?.ReportPartReturned();
-                FeedbackService.Emit(FeedbackKind.PartReturned, transform.position, "Pièce remise à sa place.");
+                FeedbackBus.Emit(FeedbackKind.PartReturned, transform.position, "Pièce remise à sa place.");
             }
         }
 
-        /// <summary>Pose de rangement (modifiable, ex. si l'utilisateur règle la hauteur du poste).</summary>
+        /// <summary>Redéfinit la pose de rangement (coordonnées monde).</summary>
         public void SetHomePose(Vector3 position, Quaternion rotation)
         {
-            homePosition = position;
-            homeRotation = rotation;
+            homeLocalPosition = homeParent != null ? homeParent.InverseTransformPoint(position) : position;
+            homeLocalRotation = homeParent != null ? Quaternion.Inverse(homeParent.rotation) * rotation : rotation;
         }
 
         // ---------- Appels de l'adaptateur d'entrée ----------
@@ -84,7 +87,7 @@ namespace DeToutesPieces.Parts
             State = PartState.Held;
             CurrentHand = hand;
             if (!HeldParts.Contains(this)) HeldParts.Add(this);
-            FeedbackService.Emit(FeedbackKind.Grab, transform.position, null, hand);
+            FeedbackBus.Emit(FeedbackKind.Grab, transform.position, null, hand);
             Grabbed?.Invoke(this);
         }
 
@@ -98,7 +101,7 @@ public void NotifyReleased()
 
             // Un seul gestionnaire (le plus proche : silhouette, emplacement de vis...) traite la dépose.
             if (!PartReleaseRouter.Resolve(this, hand))
-                FeedbackService.Emit(FeedbackKind.Release, transform.position, null, hand);
+                FeedbackBus.Emit(FeedbackKind.Release, transform.position, null, hand);
 
             CurrentHand = null;
         }
@@ -139,7 +142,7 @@ public void SnapTo(GhostSnapTarget target)
         {
             if (State == PartState.Placed) Unsnap();
             transform.SetParent(homeParent, true);
-            transform.SetPositionAndRotation(homePosition, homeRotation);
+            transform.SetPositionAndRotation(HomePosition, HomeRotation);
             StopPhysics(false);
             outOfReachTimer = 0f;
         }

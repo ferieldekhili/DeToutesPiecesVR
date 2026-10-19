@@ -127,7 +127,7 @@ namespace DeToutesPieces.Interaction
             wrongWayAccumulator = 0f;
             wrongWayWarned = false;
 
-            FeedbackService.Emit(FeedbackKind.ScrewEngaged, slot.HeadPosition,
+            FeedbackBus.Emit(FeedbackKind.ScrewEngaged, slot.HeadPosition,
                 "Clé engagée. Tournez le poignet dans le sens des aiguilles d'une montre (flèche jaune).", part.CurrentHand);
         }
 
@@ -173,14 +173,14 @@ namespace DeToutesPieces.Interaction
                 if (tickAccumulator >= tickEveryDegrees)
                 {
                     tickAccumulator = 0f;
-                    FeedbackService.Emit(FeedbackKind.ScrewProgress, engaged.HeadPosition, null, part.CurrentHand);
+                    FeedbackBus.Emit(FeedbackKind.ScrewProgress, engaged.HeadPosition, null, part.CurrentHand);
                 }
 
                 if (engaged.State == ScrewSlot.SlotState.Tightened)
                 {
                     var pos = engaged.HeadPosition;
                     Disengage(true);
-                    FeedbackService.Emit(FeedbackKind.ScrewTightened, pos, "Vis serrée.", part.CurrentHand);
+                    FeedbackBus.Emit(FeedbackKind.ScrewTightened, pos, "Vis serrée.", part.CurrentHand);
                 }
             }
             else if (delta < -0.2f)
@@ -190,7 +190,7 @@ namespace DeToutesPieces.Interaction
                 {
                     wrongWayWarned = true;
                     AssemblyManager.Instance?.ReportFasteningError();
-                    FeedbackService.Emit(FeedbackKind.WrongAction, engaged.HeadPosition,
+                    FeedbackBus.Emit(FeedbackKind.WrongAction, engaged.HeadPosition,
                         "Sens inverse : pour serrer, tournez dans le sens des aiguilles d'une montre (flèche jaune).", part.CurrentHand);
                 }
             }
@@ -200,7 +200,7 @@ namespace DeToutesPieces.Interaction
         {
             if (Time.time < nextInfoTime) return;
             nextInfoTime = Time.time + 4f;
-            FeedbackService.Emit(FeedbackKind.Info, tip.position, message, part.CurrentHand);
+            FeedbackBus.Emit(FeedbackKind.Info, tip.position, message, part.CurrentHand);
         }
 
         /// <summary>Pour les tests automatisés : simule une rotation du poignet de « degrees » (positif = sens horaire).</summary>

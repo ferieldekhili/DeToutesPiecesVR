@@ -14,12 +14,7 @@ namespace DeToutesPieces.Feedback
     {
         public static FeedbackService Instance { get; private set; }
 
-        // Code couleur du document de conception (section 4).
-        public static readonly Color InfoBlue = new Color(0.20f, 0.55f, 1f);
-        public static readonly Color SuccessGreen = new Color(0.20f, 0.85f, 0.35f);
-        public static readonly Color ErrorRed = new Color(0.95f, 0.22f, 0.20f);
-        public static readonly Color CommandYellow = new Color(1f, 0.80f, 0.10f);
-        public static readonly Color HoverWhite = new Color(1f, 1f, 1f);
+        // Code couleur : FeedbackPalette (Partie 1).
 
         [Serializable]
         public class KindSettings
@@ -59,6 +54,11 @@ namespace DeToutesPieces.Feedback
             Instance = this;
             BuildDefaults();
         }
+
+        // Les autres parties publient sur FeedbackBus (noyau) ; ce service produit le rendu.
+        private void OnEnable() => FeedbackBus.Raised += OnFeedback;
+        private void OnDisable() => FeedbackBus.Raised -= OnFeedback;
+        private void OnFeedback(FeedbackEvent e) => Play(e.kind, e.position, e.message, e.haptic);
 
         private void OnDestroy()
         {
@@ -110,37 +110,7 @@ namespace DeToutesPieces.Feedback
                 MessageRaised?.Invoke(kind, message, ColorFor(kind));
         }
 
-        /// <summary>Raccourci statique, sans erreur si le service est absent de la scène.</summary>
-        public static void Emit(FeedbackKind kind, Vector3? worldPosition = null, string message = null, IHapticChannel haptic = null)
-        {
-            if (Instance != null) Instance.Play(kind, worldPosition, message, haptic);
-            else if (!string.IsNullOrEmpty(message)) Debug.Log($"[Feedback:{kind}] {message}");
-        }
-
-        public static Color ColorFor(FeedbackKind kind)
-        {
-            switch (kind)
-            {
-                case FeedbackKind.PlacementInvalid:
-                case FeedbackKind.WrongAction:
-                    return ErrorRed;
-                case FeedbackKind.PlacementValid:
-                case FeedbackKind.PlacementPreviewValid:
-                case FeedbackKind.ScrewTightened:
-                case FeedbackKind.StepReady:
-                case FeedbackKind.StepCompleted:
-                case FeedbackKind.AssemblyCompleted:
-                    return SuccessGreen;
-                case FeedbackKind.Grab:
-                case FeedbackKind.ScrewEngaged:
-                case FeedbackKind.ScrewProgress:
-                    return InfoBlue;
-                case FeedbackKind.Hover:
-                    return HoverWhite;
-                default:
-                    return InfoBlue;
-            }
-        }
+        public static Color ColorFor(FeedbackKind kind) => FeedbackPalette.ColorFor(kind);
 
         // ---------- Audio ----------
 

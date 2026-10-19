@@ -87,11 +87,11 @@ namespace DeToutesPieces.Parts
         {
             switch (s)
             {
-                case HighlightState.Hover: return FeedbackService.HoverWhite;
-                case HighlightState.Grabbed: return FeedbackService.InfoBlue;
-                case HighlightState.Valid: return FeedbackService.SuccessGreen;
-                case HighlightState.Invalid: return FeedbackService.ErrorRed;
-                case HighlightState.Hint: return FeedbackService.CommandYellow;
+                case HighlightState.Hover: return FeedbackPalette.HoverWhite;
+                case HighlightState.Grabbed: return FeedbackPalette.InfoBlue;
+                case HighlightState.Valid: return FeedbackPalette.SuccessGreen;
+                case HighlightState.Invalid: return FeedbackPalette.ErrorRed;
+                case HighlightState.Hint: return FeedbackPalette.CommandYellow;
                 default: return Color.white;
             }
         }

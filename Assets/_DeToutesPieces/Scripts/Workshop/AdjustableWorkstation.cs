@@ -1,4 +1,3 @@
-using DeToutesPieces.Parts;
 using UnityEngine;
 
 namespace DeToutesPieces.Workshop
@@ -6,7 +5,7 @@ namespace DeToutesPieces.Workshop
     /// <summary>
     /// Poste de montage réglable en hauteur (posture assise ou debout, document section 5).
     /// Déplace verticalement le plan de travail, le support du meuble et les zones de rangement,
-    /// et met à jour la pose de rangement des pièces libres.
+    /// (les poses de rangement des pièces étant relatives à ce plan, elles suivent sans code supplémentaire).
     /// </summary>
     public class AdjustableWorkstation : MonoBehaviour
     {
@@ -40,13 +39,7 @@ namespace DeToutesPieces.Workshop
             if (Mathf.Approximately(delta, 0f)) return;
             CurrentOffset = offset;
             adjustableRoot.localPosition = basePosition + Vector3.up * offset;
-
-            // Les pièces rangées suivent le plan de travail.
-            foreach (var part in adjustableRoot.GetComponentsInChildren<AssemblyPart>())
-            {
-                if (part.State == AssemblyPart.PartState.Free)
-                    part.SetHomePose(part.transform.position, part.transform.rotation);
-            }
+            // Les pièces rangées suivent automatiquement : leur pose de rangement est relative au plan.
         }
     }
 }

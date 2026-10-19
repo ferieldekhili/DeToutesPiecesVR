@@ -15,8 +15,8 @@ namespace DeToutesPieces.Feedback
 
     /// <summary>
     /// Canal de retours du noyau (Partie 1). La logique émet des retours sans connaître leur rendu ;
-    /// le rendu son / haptique / visuel (FeedbackService, Partie 3) et l'affichage des messages
-    /// (panneau, Partie 4) s'y abonnent. Aucune partie ne dépend ainsi directement d'une autre.
+    /// le rendu son / haptique / visuel (FeedbackService) et l'affichage des messages
+    /// (panneau de consigne) — tous deux en Partie 4 — s'y abonnent. Aucune partie ne dépend ainsi directement d'une autre.
     /// </summary>
     public static class FeedbackBus
     {

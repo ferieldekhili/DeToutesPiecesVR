@@ -111,12 +111,12 @@ namespace DeToutesPieces.Parts
             if (expectedFastener != null && item.definition != expectedFastener)
             {
                 AssemblyManager.Instance?.ReportFasteningError();
-                FeedbackService.Emit(FeedbackKind.WrongAction, transform.position,
+                FeedbackBus.Emit(FeedbackKind.WrongAction, transform.position,
                     $"Mauvaise vis : ce trou attend la référence {expectedFastener.reference}.", hand);
                 return true;
             }
 
-            FeedbackService.Emit(FeedbackKind.ScrewEngaged, transform.position,
+            FeedbackBus.Emit(FeedbackKind.ScrewEngaged, transform.position,
                 "Vis engagée. Laissez-la desserrée : le serrage final se fait à l'étape 6.", hand);
             Engage(item);
             AssemblyManager.Instance?.RegisterAction(new EngageUndo(this));

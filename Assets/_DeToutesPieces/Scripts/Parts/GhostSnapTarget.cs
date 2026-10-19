@@ -95,7 +95,7 @@ namespace DeToutesPieces.Parts
             {
                 case Evaluation.Valid:
                     SetGhostColor(validColor);
-                    FeedbackService.Emit(FeedbackKind.PlacementPreviewValid, transform.position, null, nearest.CurrentHand);
+                    FeedbackBus.Emit(FeedbackKind.PlacementPreviewValid, transform.position, null, nearest.CurrentHand);
                     break;
                 case Evaluation.WrongPart:
                 case Evaluation.WrongOrientation:
@@ -146,25 +146,25 @@ public bool CanConsider(AssemblyPart part, out float distance)
                 case Evaluation.WrongPart:
                     AssemblyManager.Instance?.ReportPlacementError();
                     if (highlighter != null) highlighter.Flash(PartHighlighter.HighlightState.Invalid);
-                    FeedbackService.Emit(FeedbackKind.PlacementInvalid, part.transform.position,
+                    FeedbackBus.Emit(FeedbackKind.PlacementInvalid, part.transform.position,
                         $"Ce n'est pas la bonne pièce : cet emplacement attend « {expectedPart.displayName} ».", hand);
                     return true;
 
                 case Evaluation.WrongOrientation:
                     AssemblyManager.Instance?.ReportPlacementError();
                     if (highlighter != null) highlighter.Flash(PartHighlighter.HighlightState.Invalid);
-                    FeedbackService.Emit(FeedbackKind.PlacementInvalid, part.transform.position,
+                    FeedbackBus.Emit(FeedbackKind.PlacementInvalid, part.transform.position,
                         "Bonne pièce, mais mauvaise orientation : tournez-la pour qu'elle corresponde à la silhouette.", hand);
                     return true;
 
                 case Evaluation.TooFar:
-                    FeedbackService.Emit(FeedbackKind.Info, part.transform.position,
+                    FeedbackBus.Emit(FeedbackKind.Info, part.transform.position,
                         "Rapprochez la pièce de la silhouette pour l'aligner.", hand);
                     return true;
 
                 case Evaluation.Valid:
                     // Retour d'abord, puis changement d'état : le message « étape terminée » éventuel s'affiche en dernier.
-                    FeedbackService.Emit(FeedbackKind.PlacementValid, transform.position,
+                    FeedbackBus.Emit(FeedbackKind.PlacementValid, transform.position,
                         $"Pièce en place : « {part.DisplayName} ». Elle reste maintenue en attendant les fixations.", hand);
                     if (highlighter != null) highlighter.Flash(PartHighlighter.HighlightState.Valid);
                     Place(part);

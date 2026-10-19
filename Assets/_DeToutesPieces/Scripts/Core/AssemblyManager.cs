@@ -99,7 +99,7 @@ namespace DeToutesPieces.Core
             if (IsFinished || CurrentStep == null) return false;
             if (!IsCurrentStepReady)
             {
-                FeedbackService.Emit(FeedbackKind.WrongAction, null,
+                FeedbackBus.Emit(FeedbackKind.WrongAction, null,
                     $"Étape incomplète : {CurrentStep.SatisfiedCount}/{CurrentStep.RequirementCount} opérations réalisées.");
                 return false;
             }
@@ -110,7 +110,7 @@ namespace DeToutesPieces.Core
 
             if (finished + 1 < steps.Count)
             {
-                FeedbackService.Emit(FeedbackKind.StepCompleted, null, $"Étape {finished + 1} validée.");
+                FeedbackBus.Emit(FeedbackKind.StepCompleted, null, $"Étape {finished + 1} validée.");
                 BeginStep(finished + 1);
             }
             else
@@ -118,7 +118,7 @@ namespace DeToutesPieces.Core
                 foreach (var r in CurrentStep.requirements) if (r != null) r.SetActiveForStep(false);
                 IsFinished = true;
                 SetGuidance(null);
-                FeedbackService.Emit(FeedbackKind.AssemblyCompleted, null, "Montage terminé ! Rappel de la notice : charge maximale 10 kg, ne pas s'asseoir sur la table.");
+                FeedbackBus.Emit(FeedbackKind.AssemblyCompleted, null, "Montage terminé ! Rappel de la notice : charge maximale 10 kg, ne pas s'asseoir sur la table.");
                 AssemblyCompleted?.Invoke();
             }
             return true;
@@ -143,7 +143,7 @@ namespace DeToutesPieces.Core
             {
                 IsCurrentStepReady = true;
                 if (notify)
-                    FeedbackService.Emit(FeedbackKind.StepReady, null,
+                    FeedbackBus.Emit(FeedbackKind.StepReady, null,
                         requireConfirmToAdvance ? "Étape terminée. Appuyez sur « Étape suivante »." : "Étape terminée.");
                 StepReady?.Invoke(CurrentStepIndex, step);
                 if (!requireConfirmToAdvance) ConfirmNextStep();
@@ -177,13 +177,13 @@ namespace DeToutesPieces.Core
         {
             if (undoStack.Count == 0)
             {
-                FeedbackService.Emit(FeedbackKind.Info, null, "Aucune action à annuler dans cette étape.");
+                FeedbackBus.Emit(FeedbackKind.Info, null, "Aucune action à annuler dans cette étape.");
                 return false;
             }
             var a = undoStack.Pop();
             a.Undo();
             Stats.undoCount++;
-            FeedbackService.Emit(FeedbackKind.UndoPerformed, null, $"Annulé : {a.Label}.");
+            FeedbackBus.Emit(FeedbackKind.UndoPerformed, null, $"Annulé : {a.Label}.");
             return true;
         }
 
@@ -205,7 +205,7 @@ namespace DeToutesPieces.Core
             else text = step.instruction;
 
             HintRequested?.Invoke(CurrentHintLevel, text, currentGuidance);
-            FeedbackService.Emit(FeedbackKind.Info, null, text);
+            FeedbackBus.Emit(FeedbackKind.Info, null, text);
         }
 
         public void ReportPlacementError() => Stats.placementErrors++;

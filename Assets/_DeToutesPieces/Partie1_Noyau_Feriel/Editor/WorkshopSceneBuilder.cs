@@ -191,6 +191,7 @@ namespace DeToutesPieces.EditorTools
             Camera xrCamera = BuildXR();
             BuildEventSystem();
             BuildInstructionPanel(xrCamera);
+            BuildVirtualNotice(xrCamera, mats);
 
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
             RenderSettings.ambientSkyColor = new Color(0.75f, 0.78f, 0.82f);
@@ -759,6 +760,67 @@ namespace DeToutesPieces.EditorTools
             go.AddComponent<ToolDrawer>();
         }
 
+        /// <summary>Notice virtuelle (Partie 3) : tableau à droite du poste, symétrique du panneau de consigne.</summary>
+        private static void BuildVirtualNotice(Camera cam, Materials m)
+        {
+            var old = GameObject.Find("Notice virtuelle");
+            if (old) Object.DestroyImmediate(old);
+            var root = new GameObject("Notice virtuelle").transform;
+            root.position = new Vector3(0.95f, 1.30f, 0.65f);
+            root.rotation = Quaternion.Euler(8f, 50f, 0f);
+
+            var canvasGo = new GameObject("Tableau", typeof(RectTransform));
+            canvasGo.transform.SetParent(root, false);
+            var canvas = canvasGo.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.WorldSpace;
+            canvas.worldCamera = cam;
+            canvasGo.AddComponent<CanvasScaler>().dynamicPixelsPerUnit = 10f;
+            canvasGo.AddComponent<TrackedDeviceGraphicRaycaster>();
+            var rt = (RectTransform)canvasGo.transform;
+            rt.sizeDelta = new Vector2(560, 620);
+            rt.localScale = Vector3.one * 0.001f;
+            var sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
+            var bg = canvasGo.AddComponent<Image>();
+            bg.sprite = sprite; bg.type = Image.Type.Sliced;
+            bg.color = new Color(0.93f, 0.93f, 0.9f, 0.97f);
+
+            var title = Text(canvasGo.transform, "Titre", "Notice", 28, new Vector2(0, 1), new Vector2(1, 1), new Vector2(20, -64), new Vector2(-20, -14), TextAlignmentOptions.TopLeft, new Color(0.12f, 0.12f, 0.14f), FontStyles.Bold);
+            title.enableAutoSizing = true; title.fontSizeMin = 18f; title.fontSizeMax = 28f;
+            var details = Text(canvasGo.transform, "Détails", "", 20, new Vector2(0, 0), new Vector2(1, 0), new Vector2(20, 96), new Vector2(-20, 236), TextAlignmentOptions.TopLeft, new Color(0.12f, 0.12f, 0.14f), FontStyles.Normal);
+            var prev = Button(canvasGo.transform, "Étape précédente", "Précédente", new Vector2(0f, 0), new Vector2(0.33f, 0), new Color(0.35f, 0.38f, 0.45f), Color.white, out _);
+            var cur = Button(canvasGo.transform, "Étape en cours", "En cours", new Vector2(0.33f, 0), new Vector2(0.67f, 0), new Color(1f, 0.8f, 0.1f), new Color(0.1f, 0.1f, 0.1f), out _);
+            var next = Button(canvasGo.transform, "Étape suivante", "Suivante", new Vector2(0.67f, 0), new Vector2(1f, 0), new Color(0.35f, 0.38f, 0.45f), Color.white, out _);
+
+            // Maquette 3D devant le tableau (côté utilisateur), dans la zone libre entre titre et détails.
+            var model = new GameObject("Maquette").transform;
+            model.SetParent(root, false);
+            model.localPosition = new Vector3(0f, 0.03f, -0.12f);
+
+            var notice = root.gameObject.AddComponent<VirtualNotice>();
+            var so = new SerializedObject(notice);
+            so.FindProperty("modelRoot").objectReferenceValue = model;
+            so.FindProperty("doneMaterial").objectReferenceValue = m.NoticeDone;
+            so.FindProperty("currentMaterial").objectReferenceValue = m.NoticeCurrent;
+            so.FindProperty("screwMaterial").objectReferenceValue = m.NoticeScrew;
+            so.FindProperty("title").objectReferenceValue = title;
+            so.FindProperty("details").objectReferenceValue = details;
+            so.FindProperty("previousButton").objectReferenceValue = prev;
+            so.FindProperty("nextButton").objectReferenceValue = next;
+            so.FindProperty("currentButton").objectReferenceValue = cur;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        [MenuItem("De Toutes Pièces/Ajouter la notice virtuelle à la scène ouverte")]
+        public static void AddVirtualNoticeInOpenScene()
+        {
+            var panel = GameObject.Find("Panneau de consigne");
+            if (panel == null) { Debug.LogError("[De Toutes Pièces] Ouvrez la scène Atelier."); return; }
+            BuildVirtualNotice(panel.GetComponent<Canvas>().worldCamera, new Materials());
+            EditorSceneManager.MarkSceneDirty(panel.scene);
+            EditorSceneManager.SaveScene(panel.scene);
+            Debug.Log("[De Toutes Pièces] Notice virtuelle ajoutée.");
+        }
+
         [MenuItem("De Toutes Pièces/Ajouter la fenêtre d'outils à la scène ouverte")]
         public static void AddToolDrawerInOpenScene()
         {
@@ -874,7 +936,7 @@ namespace DeToutesPieces.EditorTools
 
         private class Materials
         {
-            public readonly Material Floor, Wall, Wood, Metal, Panel, Plastic, Screw, Stand, Tray, Cale, Zone, ZoneBorder, Ghost, Pulse, Arrow, SlotRing, Key, Progress;
+            public readonly Material Floor, Wall, Wood, Metal, Panel, Plastic, Screw, Stand, Tray, Cale, Zone, ZoneBorder, Ghost, Pulse, Arrow, SlotRing, Key, Progress, NoticeDone, NoticeCurrent, NoticeScrew;
             public readonly Mesh ArrowMesh, RotationArrowMesh;
 
             public Materials()
@@ -897,6 +959,9 @@ namespace DeToutesPieces.EditorTools
                 SlotRing = Mat("M_RepereTrou", new Color(1f, 0.8f, 0.1f), 0f, 0f, false, true);
                 Key = Mat("M_CleAllen", new Color(0.25f, 0.26f, 0.28f), 0.6f, 0.9f);
                 Progress = Mat("M_ProgressionSerrage", new Color(0.2f, 0.85f, 0.35f), 0f, 0f, false, true);
+                NoticeDone = Mat("M_NoticeAcquis", new Color(0.6f, 0.63f, 0.66f), 0f, 0f, false, true);
+                NoticeCurrent = Mat("M_NoticeEtape", new Color(1f, 0.8f, 0.1f), 0f, 0f, false, true);
+                NoticeScrew = Mat("M_NoticeVis", new Color(1f, 0.45f, 0.1f), 0f, 0f, false, true);
 
                 string rotPath = P3 + "/Data/RotationArrowMesh.asset";
                 RotationArrowMesh = AssetDatabase.LoadAssetAtPath<Mesh>(rotPath);
@@ -924,6 +989,7 @@ namespace DeToutesPieces.EditorTools
                     case "M_MetalNoir": case "M_PanneauNoir": case "M_PlastiqueNoir":
                         return P2 + "/Materials";
                     case "M_FlecheGuidage": case "M_ProgressionSerrage": case "M_Cale":
+                    case "M_NoticeAcquis": case "M_NoticeEtape": case "M_NoticeVis":
                         return P3 + "/Materials";
                     default:
                         return P4 + "/Materials";

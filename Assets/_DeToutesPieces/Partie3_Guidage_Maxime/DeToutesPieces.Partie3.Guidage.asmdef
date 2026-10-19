@@ -3,7 +3,9 @@
     "rootNamespace": "DeToutesPieces",
     "references": [
         "DeToutesPieces.Partie1.Noyau",
-        "DeToutesPieces.Partie2.Interactions"
+        "DeToutesPieces.Partie2.Interactions",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

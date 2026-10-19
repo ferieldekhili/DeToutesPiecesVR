@@ -1,0 +1,14 @@
+{
+    "name": "DeToutesPieces.Partie1.Noyau",
+    "rootNamespace": "DeToutesPieces",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

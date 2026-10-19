@@ -1,0 +1,18 @@
+{
+    "name": "DeToutesPieces.Partie2.Interactions",
+    "rootNamespace": "DeToutesPieces",
+    "references": [
+        "DeToutesPieces.Partie1.Noyau",
+        "Unity.XR.Interaction.Toolkit",
+        "Unity.InputSystem"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

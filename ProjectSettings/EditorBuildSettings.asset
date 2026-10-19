@@ -6,7 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/_DeToutesPieces/Scenes/Atelier.unity
+    path: Assets/_DeToutesPieces/Partie1_Noyau_Feriel/Scenes/Atelier.unity
     guid: 8875588a2de2b4c4ca0383861ce0010a
   - enabled: 1
     path: Assets/Scenes/SampleScene.unity

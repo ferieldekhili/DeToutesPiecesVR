@@ -1,0 +1,17 @@
+{
+    "name": "DeToutesPieces.Partie3.Guidage",
+    "rootNamespace": "DeToutesPieces",
+    "references": [
+        "DeToutesPieces.Partie1.Noyau",
+        "DeToutesPieces.Partie2.Interactions"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

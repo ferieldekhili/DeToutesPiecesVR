@@ -4,7 +4,9 @@
     "references": [
         "DeToutesPieces.Partie1.Noyau",
         "Unity.TextMeshPro",
-        "UnityEngine.UI"
+        "UnityEngine.UI",
+        "DeToutesPieces.Partie2.Interactions",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

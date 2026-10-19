@@ -709,6 +709,7 @@ namespace DeToutesPieces.EditorTools
             bg.color = new Color(0.07f, 0.09f, 0.13f, 0.96f);
 
             var title = Text(go.transform, "Titre étape", "Étape", 30, new Vector2(0, 1), new Vector2(1, 1), new Vector2(24, -70), new Vector2(-24, -18), TextAlignmentOptions.TopLeft, new Color(1f, 0.8f, 0.1f), FontStyles.Bold);
+            title.enableAutoSizing = true; title.fontSizeMin = 20f; title.fontSizeMax = 30f; // titres longs sur une ligne
             var instr = Text(go.transform, "Consigne", "", 24, new Vector2(0, 1), new Vector2(1, 1), new Vector2(24, -200), new Vector2(-24, -78), TextAlignmentOptions.TopLeft, Color.white, FontStyles.Normal);
             var prog = Text(go.transform, "Progression", "", 21, new Vector2(0, 1), new Vector2(1, 1), new Vector2(24, -330), new Vector2(-24, -208), TextAlignmentOptions.TopLeft, new Color(0.8f, 0.88f, 1f), FontStyles.Normal);
 
@@ -739,6 +740,34 @@ namespace DeToutesPieces.EditorTools
             so.FindProperty("nextButton").objectReferenceValue = next;
             so.FindProperty("nextButtonLabel").objectReferenceValue = nextLabel;
             so.ApplyModifiedPropertiesWithoutUndo();
+
+            BuildToolDrawer(go.transform);
+        }
+
+        /// <summary>Fenêtre d'outils déroulante, accrochée sous le panneau de consigne (Partie 4).</summary>
+        private static void BuildToolDrawer(Transform panel)
+        {
+            var old = panel.Find("Fenêtre d'outils");
+            if (old) Object.DestroyImmediate(old.gameObject);
+            var go = new GameObject("Fenêtre d'outils", typeof(RectTransform));
+            var rt = (RectTransform)go.transform;
+            rt.SetParent(panel, false);
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0f);
+            rt.pivot = new Vector2(0.5f, 1f);
+            rt.sizeDelta = new Vector2(640f, 60f);
+            rt.anchoredPosition = new Vector2(0f, -12f);
+            go.AddComponent<ToolDrawer>();
+        }
+
+        [MenuItem("De Toutes Pièces/Ajouter la fenêtre d'outils à la scène ouverte")]
+        public static void AddToolDrawerInOpenScene()
+        {
+            var panel = GameObject.Find("Panneau de consigne");
+            if (panel == null) { Debug.LogError("[De Toutes Pièces] Panneau de consigne introuvable."); return; }
+            BuildToolDrawer(panel.transform);
+            EditorSceneManager.MarkSceneDirty(panel.scene);
+            EditorSceneManager.SaveScene(panel.scene);
+            Debug.Log("[De Toutes Pièces] Fenêtre d'outils ajoutée sous le panneau de consigne.");
         }
 
         // =====================================================================

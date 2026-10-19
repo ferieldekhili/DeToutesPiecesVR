@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72f907e75787b43a1b44845e2f84026e, type: 3}
+  m_Name: Part_TabletteInferieure
+  m_EditorClassIdentifier: Assembly-CSharp::DeToutesPieces.Data.PartDefinition
+  partId: KNV_TABLETTE
+  displayName: "Tablette inf\xE9rieure"
+  description: "Tablette m\xE9tallique \xE0 bords repli\xE9s ; les pieds s'y vissent
+    en premier (\xE9tapes 1 \xE0 3)."
+  quantityInKit: 1
+  noticeReference: AA-2547698-1 (p. 1, 7-12)
+  verifiedAgainstNotice: 1
+  icon: {fileID: 0}

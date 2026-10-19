@@ -46,6 +46,10 @@ namespace DeToutesPieces.Parts
         private Quaternion HomeRotation => homeParent != null ? homeParent.rotation * homeLocalRotation : homeLocalRotation;
         private Transform homeParent;
         private float outOfReachTimer;
+        private bool presented;
+
+        /// <summary>Vrai tant que la pièce flotte devant l'utilisateur après une demande depuis la fenêtre d'outils.</summary>
+        public bool IsPresented => presented;
 
         private void Awake()
         {
@@ -58,7 +62,7 @@ namespace DeToutesPieces.Parts
 
         private void Update()
         {
-            if (State != PartState.Free) { outOfReachTimer = 0f; return; }
+            if (State != PartState.Free || presented) { outOfReachTimer = 0f; return; }
 
             bool outOfReach = transform.position.y < returnBelowHeight ||
                               Vector3.Distance(transform.position, HomePosition) > maxDistanceFromHome;
@@ -95,6 +99,12 @@ public void NotifyReleased()
         {
             if (State != PartState.Held) return;
             var hand = CurrentHand;
+            if (presented)
+            {
+                // Après une présentation, la pièce redevient soumise à la gravité dès qu'on la lâche.
+                presented = false;
+                rb.isKinematic = false;
+            }
             State = PartState.Free;
             HeldParts.Remove(this);
             Released?.Invoke(this);
@@ -138,8 +148,23 @@ public void SnapTo(GhostSnapTarget target)
             Unsnapped?.Invoke(this);
         }
 
+        /// <summary>
+        /// Fait flotter la pièce à la pose donnée, à portée de main, jusqu'à ce qu'elle soit saisie
+        /// (demande depuis la fenêtre d'outils). Sans effet sur une pièce tenue ou déjà posée.
+        /// </summary>
+        public bool Present(Vector3 position, Quaternion rotation)
+        {
+            if (State != PartState.Free) return false;
+            presented = true;
+            StopPhysics(true);
+            transform.SetPositionAndRotation(position, rotation);
+            outOfReachTimer = 0f;
+            return true;
+        }
+
         public void ReturnHome()
         {
+            presented = false;
             if (State == PartState.Placed) Unsnap();
             transform.SetParent(homeParent, true);
             transform.SetPositionAndRotation(HomePosition, HomeRotation);

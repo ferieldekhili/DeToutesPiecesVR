@@ -32,6 +32,12 @@ namespace DeToutesPieces.Core
             IsActiveForStep = active;
         }
 
+        /// <summary>
+        /// Réalise la condition automatiquement (reprise d'une session au dernier jalon).
+        /// Retourne vrai si la condition est satisfaite après l'appel.
+        /// </summary>
+        public virtual bool TryAutoComplete() => IsSatisfied;
+
         protected void RaiseStateChanged() => StateChanged?.Invoke(this);
     }
 

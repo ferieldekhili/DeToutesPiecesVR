@@ -22,6 +22,15 @@ namespace DeToutesPieces.Core
 
         public void Tick(float dt) => activeTimeSeconds += dt;
 
+        /// <summary>Remise à zéro au début du montage : les gestes d'exercice ne comptent pas dans le bilan.</summary>
+        public void Reset()
+        {
+            activeTimeSeconds = 0f;
+            placementErrors = fasteningErrors = hintsRequested = undoCount = partsReturned = 0;
+            stepsCompletedWithoutHint.Clear();
+            hintsAtStepStart = 0;
+        }
+
         public void OnStepStarted() => hintsAtStepStart = hintsRequested;
 
         public void OnStepCompleted(int stepIndex)

@@ -1,3 +1,4 @@
+using DeToutesPieces.Core;
 using UnityEngine;
 
 namespace DeToutesPieces.Workshop
@@ -27,6 +28,19 @@ namespace DeToutesPieces.Workshop
             if (adjustableRoot == null) adjustableRoot = transform;
             basePosition = adjustableRoot.localPosition;
         }
+
+        private void OnEnable()
+        {
+            SessionSettings.Changed += ApplySettings;
+        }
+
+        private void Start() => ApplySettings();
+
+        private void OnDisable() => SessionSettings.Changed -= ApplySettings;
+
+        // Posture choisie à l'accueil ou dans le menu de réglages.
+        private void ApplySettings() =>
+            SetPosture(SessionSettings.Posture == WorkPosture.Seated ? Posture.Seated : Posture.Standing);
 
         public void SetPosture(Posture p) => SetOffset(p == Posture.Standing ? standingOffset : seatedOffset);
 

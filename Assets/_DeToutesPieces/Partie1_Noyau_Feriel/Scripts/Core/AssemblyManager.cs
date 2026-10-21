@@ -10,6 +10,7 @@ namespace DeToutesPieces.Core
     /// pilote le guidage, l'annulation, les indices progressifs et les mesures de session.
     /// N'effectue jamais le montage à la place de l'utilisateur.
     /// </summary>
+    [DefaultExecutionOrder(-50)]
     public class AssemblyManager : MonoBehaviour
     {
         public static AssemblyManager Instance { get; private set; }
@@ -54,8 +55,19 @@ namespace DeToutesPieces.Core
             if (Instance == this) Instance = null;
         }
 
+        private bool initialized;
+
         private void Start()
         {
+            Initialize();
+            if (startOnPlay && steps.Count > 0 && CurrentStepIndex < 0) BeginStep(0);
+        }
+
+        /// <summary>Abonnement aux conditions des étapes (idempotent).</summary>
+        private void Initialize()
+        {
+            if (initialized) return;
+            initialized = true;
             foreach (var step in steps)
                 foreach (var req in step.requirements)
                     if (req != null)
@@ -63,8 +75,41 @@ namespace DeToutesPieces.Core
                         req.StateChanged += OnRequirementChanged;
                         req.SetActiveForStep(false);
                     }
+        }
 
-            if (startOnPlay && steps.Count > 0) BeginStep(0);
+        /// <summary>
+        /// Lance le montage (appelé par le déroulement de session). Avec fromStep &gt; 0, reprend au dernier jalon :
+        /// les étapes précédentes sont reconstituées automatiquement, sans retours ni mesures.
+        /// </summary>
+        public void StartAssembly(int fromStep = 0)
+        {
+            Initialize();
+            if (steps.Count == 0) return;
+            fromStep = Mathf.Clamp(fromStep, 0, steps.Count - 1);
+            Stats.Reset();
+            if (fromStep == 0) { BeginStep(0); return; }
+
+            FeedbackBus.Muted = true;
+            try
+            {
+                BeginStep(0);
+                while (CurrentStepIndex < fromStep && !IsFinished)
+                {
+                    foreach (var r in CurrentStep.requirements)
+                        if (r != null && !r.IsSatisfied) r.TryAutoComplete();
+                    if (!IsCurrentStepReady) break; // reconstitution impossible : on reprend ici
+                    ConfirmNextStep();
+                }
+            }
+            finally
+            {
+                FeedbackBus.Muted = false;
+            }
+            // La reconstitution ne compte ni dans le temps actif ni dans les étapes réussies sans aide.
+            Stats.activeTimeSeconds = 0f;
+            Stats.stepsCompletedWithoutHint.Clear();
+            Stats.OnStepStarted();
+            StepStarted?.Invoke(CurrentStepIndex, CurrentStep); // rafraîchit l'interface après la reprise
         }
 
         private void Update()
@@ -153,6 +198,12 @@ namespace DeToutesPieces.Core
                 IsCurrentStepReady = false; // suite à une annulation
             }
         }
+
+        /// <summary>
+        /// Publie une cible de guidage hors des étapes de montage (prise en main, inventaire).
+        /// La flèche, le guide de rotation et le support tournant réagissent comme pendant le montage.
+        /// </summary>
+        public void PublishGuidance(StepRequirement req) => SetGuidance(req);
 
         private void SetGuidance(StepRequirement req)
         {

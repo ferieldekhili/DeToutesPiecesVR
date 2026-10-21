@@ -22,8 +22,12 @@ namespace DeToutesPieces.Feedback
     {
         public static event Action<FeedbackEvent> Raised;
 
+        /// <summary>Coupe temporairement les retours (ex. reconstitution automatique lors d'une reprise).</summary>
+        public static bool Muted { get; set; }
+
         public static void Emit(FeedbackKind kind, Vector3? worldPosition = null, string message = null, IHapticChannel haptic = null)
         {
+            if (Muted) return;
             var e = new FeedbackEvent { kind = kind, position = worldPosition, message = message, haptic = haptic };
             if (Raised != null) Raised(e);
             else if (!string.IsNullOrEmpty(message)) Debug.Log($"[Retour:{kind}] {message}");

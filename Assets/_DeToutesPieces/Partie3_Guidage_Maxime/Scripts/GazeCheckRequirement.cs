@@ -53,6 +53,12 @@ namespace DeToutesPieces.Guidance
             }
         }
 
+        public override bool TryAutoComplete()
+        {
+            ForceComplete();
+            return true;
+        }
+
         /// <summary>Pour les tests automatisés.</summary>
         public void ForceComplete()
         {

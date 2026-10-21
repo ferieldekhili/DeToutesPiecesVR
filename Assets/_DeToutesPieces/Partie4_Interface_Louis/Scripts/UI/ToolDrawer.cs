@@ -68,16 +68,26 @@ namespace DeToutesPieces.UI
 
         private void OnEnable()
         {
-            toggleAction = new InputAction("Fenêtre d'outils", InputActionType.Button, "<XRController>{LeftHand}/primaryButton");
-            toggleAction.AddBinding("<Keyboard>/o");
-            toggleAction.performed += _ => Toggle();
-            toggleAction.Enable();
+            BindToggle();
+            SessionSettings.Changed += BindToggle;
         }
 
         private void OnDisable()
         {
+            SessionSettings.Changed -= BindToggle;
             toggleAction?.Dispose();
             toggleAction = null;
+        }
+
+        // Bouton principal de la main NON dominante (X à gauche pour un droitier) ; touche O au clavier.
+        private void BindToggle()
+        {
+            toggleAction?.Dispose();
+            string hand = SessionSettings.DominantHand == Handedness.Right ? "{LeftHand}" : "{RightHand}";
+            toggleAction = new InputAction("Fenêtre d'outils", InputActionType.Button, $"<XRController>{hand}/primaryButton");
+            toggleAction.AddBinding("<Keyboard>/o");
+            toggleAction.performed += _ => Toggle();
+            toggleAction.Enable();
         }
 
         public void Toggle()
@@ -111,7 +121,10 @@ namespace DeToutesPieces.UI
         private void BuildEntries()
         {
             entries.Clear();
-            var parts = FindObjectsByType<AssemblyPart>(FindObjectsInactive.Exclude, FindObjectsSortMode.InstanceID);
+            // Les objets d'exercice de la prise en main ne font pas partie du kit.
+            var parts = new List<AssemblyPart>();
+            foreach (var p in FindObjectsByType<AssemblyPart>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID))
+                if (!PracticeItem.IsPractice(p)) parts.Add(p);
 
             // Clé Allen
             AssemblyPart key = null;

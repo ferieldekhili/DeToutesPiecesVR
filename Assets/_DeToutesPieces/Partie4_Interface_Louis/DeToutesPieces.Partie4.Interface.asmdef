@@ -6,7 +6,8 @@
         "Unity.TextMeshPro",
         "UnityEngine.UI",
         "DeToutesPieces.Partie2.Interactions",
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "Unity.XR.Interaction.Toolkit"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

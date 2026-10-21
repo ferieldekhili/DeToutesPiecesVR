@@ -31,6 +31,7 @@ namespace DeToutesPieces.UI
 
         private Coroutine messageRoutine;
         private AssemblyManager manager;
+        private SessionFlow flow;
 
         private void OnEnable()
         {
@@ -44,6 +45,13 @@ namespace DeToutesPieces.UI
         private void Start()
         {
             if (manager == null) { manager = AssemblyManager.Instance; Subscribe(); }
+            SubscribeFeedback();
+            flow = SessionFlow.Instance;
+            if (flow != null)
+            {
+                flow.PhaseChanged += OnPhaseChanged;
+                flow.PhaseInfoChanged += RefreshAll;
+            }
             RefreshAll();
         }
 
@@ -53,6 +61,11 @@ namespace DeToutesPieces.UI
             if (undoButton) undoButton.onClick.RemoveListener(OnUndo);
             if (nextButton) nextButton.onClick.RemoveListener(OnNext);
             Unsubscribe();
+            if (flow != null)
+            {
+                flow.PhaseChanged -= OnPhaseChanged;
+                flow.PhaseInfoChanged -= RefreshAll;
+            }
         }
 
         private bool subscribed;
@@ -68,7 +81,16 @@ namespace DeToutesPieces.UI
                 manager.AssemblyCompleted += RefreshAll;
                 subscribed = true;
             }
-            if (FeedbackService.Instance != null) FeedbackService.Instance.MessageRaised += OnMessage;
+            SubscribeFeedback();
+        }
+
+        // Le service de retours peut s'initialiser après ce panneau : abonnement réessayé au démarrage.
+        private bool feedbackSubscribed;
+        private void SubscribeFeedback()
+        {
+            if (feedbackSubscribed || FeedbackService.Instance == null) return;
+            FeedbackService.Instance.MessageRaised += OnMessage;
+            feedbackSubscribed = true;
         }
 
         private void Unsubscribe()
@@ -81,14 +103,29 @@ namespace DeToutesPieces.UI
                 manager.AssemblyCompleted -= RefreshAll;
             }
             subscribed = false;
-            if (FeedbackService.Instance != null) FeedbackService.Instance.MessageRaised -= OnMessage;
+            if (feedbackSubscribed && FeedbackService.Instance != null) FeedbackService.Instance.MessageRaised -= OnMessage;
+            feedbackSubscribed = false;
         }
 
         private void OnStepChanged(int index, AssemblyStep step) => RefreshAll();
+        private void OnPhaseChanged(SessionPhase phase) => RefreshAll();
+
+        private bool InAssemblyPhase => flow == null || flow.Phase == SessionPhase.Montage || flow.Phase == SessionPhase.Bilan;
 
         private void RefreshAll()
         {
             if (manager == null) return;
+
+            // Accueil, prise en main, inventaire : consigne publiée par la phase en cours.
+            if (!InAssemblyPhase)
+            {
+                Set(stepTitle, flow.PhaseTitle);
+                Set(instruction, flow.PhaseInstruction);
+                Set(progress, flow.PhaseProgress);
+                bool skippable = flow.Phase == SessionPhase.PriseEnMain || flow.Phase == SessionPhase.Inventaire;
+                SetNext(skippable, flow.PhaseCanContinue ? "Continuer" : skippable ? "Passer" : "—");
+                return;
+            }
 
             if (manager.IsFinished)
             {
@@ -167,7 +204,11 @@ namespace DeToutesPieces.UI
 
         private void OnHint() => manager?.RequestHint();
         private void OnUndo() => manager?.Undo();
-        private void OnNext() => manager?.ConfirmNextStep();
+        private void OnNext()
+        {
+            if (!InAssemblyPhase) { flow.CompletePhase(flow.Phase); return; }
+            manager?.ConfirmNextStep();
+        }
 
         private static string Box(bool ok) => ok ? "<color=#3CD95A><b>[OK]</b></color> " : "<color=#FFCC1A><b>[  ]</b></color> ";
 

@@ -28,8 +28,24 @@ namespace DeToutesPieces.Interaction
             set { dominantHand = value; Rebuild(); }
         }
 
-        private void OnEnable() => Rebuild();
-        private void OnDisable() => DisposeActions();
+        private void OnEnable()
+        {
+            SessionSettings.Changed += ApplySettings;
+            ApplySettings();
+        }
+
+        private void OnDisable()
+        {
+            SessionSettings.Changed -= ApplySettings;
+            DisposeActions();
+        }
+
+        // Main dominante choisie à l'accueil ou dans le menu de réglages.
+        private void ApplySettings()
+        {
+            dominantHand = SessionSettings.DominantHand == Handedness.Left ? Hand.Left : Hand.Right;
+            Rebuild();
+        }
 
         private void Rebuild()
         {
@@ -39,6 +55,7 @@ namespace DeToutesPieces.Interaction
             hintAction = new InputAction("Hint", InputActionType.Button, $"<XRController>{hand}/primaryButton");
             undoAction = new InputAction("Undo", InputActionType.Button, $"<XRController>{hand}/secondaryButton");
             menuAction = new InputAction("Menu", InputActionType.Button, "<XRController>{LeftHand}/menuButton");
+            menuAction.AddBinding("<XRController>{RightHand}/menuButton");
             nextAction = new InputAction("Next", InputActionType.Button);
 
             if (keyboardFallback)
@@ -58,7 +75,15 @@ namespace DeToutesPieces.Interaction
                 var m = AssemblyManager.Instance;
                 if (m != null) m.SetPaused(!m.IsPaused);
             };
-            nextAction.performed += _ => AssemblyManager.Instance?.ConfirmNextStep();
+            nextAction.performed += _ =>
+            {
+                // Hors montage (prise en main, inventaire), « suivant » termine ou passe la phase.
+                var flow = SessionFlow.Instance;
+                if (flow != null && (flow.Phase == SessionPhase.PriseEnMain || flow.Phase == SessionPhase.Inventaire))
+                    flow.CompletePhase(flow.Phase);
+                else
+                    AssemblyManager.Instance?.ConfirmNextStep();
+            };
 
             hintAction.Enable(); undoAction.Enable(); menuAction.Enable(); nextAction.Enable();
         }

@@ -174,6 +174,19 @@ public bool CanConsider(AssemblyPart part, out float distance)
             return false;
         }
 
+        public override bool TryAutoComplete()
+        {
+            if (IsSatisfied) return true;
+            foreach (var p in FindObjectsByType<AssemblyPart>(FindObjectsSortMode.InstanceID))
+            {
+                if (p.definition != expectedPart || p.State != AssemblyPart.PartState.Free) continue;
+                if (PracticeItem.IsPractice(p) != PracticeItem.IsPractice(this)) continue; // exercice ↔ exercice, kit ↔ kit
+                Place(p);
+                return true;
+            }
+            return false;
+        }
+
         private void Place(AssemblyPart part)
         {
             placedPart = part;

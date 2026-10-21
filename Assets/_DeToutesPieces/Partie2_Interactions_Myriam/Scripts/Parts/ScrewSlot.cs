@@ -117,10 +117,26 @@ namespace DeToutesPieces.Parts
             }
 
             FeedbackBus.Emit(FeedbackKind.ScrewEngaged, transform.position,
-                "Vis engagée. Laissez-la desserrée : le serrage final se fait à l'étape 6.", hand);
+                PracticeItem.IsPractice(this) ? "Vis engagée."
+                    : "Vis engagée. Laissez-la desserrée : le serrage final se fait à l'étape 6.", hand);
             Engage(item);
             AssemblyManager.Instance?.RegisterAction(new EngageUndo(this));
             return true;
+        }
+
+        public override bool TryAutoComplete()
+        {
+            if (IsSatisfied) return true;
+            if (!HostReady) return false;
+            foreach (var f in FindObjectsByType<FastenerItem>(FindObjectsSortMode.InstanceID))
+            {
+                if (f.Part == null || f.Part.State != AssemblyPart.PartState.Free) continue;
+                if (PracticeItem.IsPractice(f) != PracticeItem.IsPractice(this)) continue;
+                if (expectedFastener != null && f.definition != expectedFastener) continue;
+                Engage(f);
+                return true;
+            }
+            return false;
         }
 
         private void Engage(FastenerItem item)

@@ -30,6 +30,12 @@ namespace DeToutesPieces.Parts
 
         private void OnSlotChanged(StepRequirement _) => RaiseStateChanged();
 
+        public override bool TryAutoComplete()
+        {
+            if (slot != null && slot.State == ScrewSlot.SlotState.Engaged) slot.MarkTightened();
+            return IsSatisfied;
+        }
+
         public override void SetActiveForStep(bool active)
         {
             base.SetActiveForStep(active);

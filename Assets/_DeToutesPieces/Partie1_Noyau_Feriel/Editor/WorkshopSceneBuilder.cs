@@ -781,7 +781,7 @@ namespace DeToutesPieces.EditorTools
         private static void BuildSessionSystems(Transform adjustable, Materials m, AssemblyManager manager)
         {
             var systems = manager.transform.parent;
-            foreach (var n in new[] { "Déroulement de session", "Indices progressifs", "Inventaire", "Prise en main", "Réglages appliqués" })
+            foreach (var n in new[] { "Déroulement de session", "Indices progressifs", "Inventaire", "Prise en main", "Réglages appliqués", "Raccourcis de test (éditeur)" })
             { var old = systems.Find(n); if (old) Object.DestroyImmediate(old.gameObject); }
             foreach (var n in new[] { "Écran d'accueil", "Menu pause", "Écran de bilan" })
             { var old = GameObject.Find(n); if (old && old.transform.parent == null) Object.DestroyImmediate(old); }
@@ -795,6 +795,7 @@ namespace DeToutesPieces.EditorTools
 
             new GameObject("Déroulement de session").AddComponent<SessionFlow>().transform.SetParent(systems, false);
             new GameObject("Réglages appliqués").AddComponent<SettingsApplier>().transform.SetParent(systems, false);
+            new GameObject("Raccourcis de test (éditeur)").AddComponent<TestShortcuts>().transform.SetParent(systems, false);
             new GameObject("Inventaire").AddComponent<InventoryActivity>().transform.SetParent(systems, false);
             var hints = new GameObject("Indices progressifs").AddComponent<HintPresenter>();
             hints.transform.SetParent(systems, false);

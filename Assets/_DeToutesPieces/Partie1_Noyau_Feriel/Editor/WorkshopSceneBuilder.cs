@@ -192,6 +192,7 @@ namespace DeToutesPieces.EditorTools
             BuildEventSystem();
             BuildInstructionPanel(xrCamera);
             BuildVirtualNotice(xrCamera, mats);
+            BuildSessionSystems(adjustable, mats, manager);
 
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
             RenderSettings.ambientSkyColor = new Color(0.75f, 0.78f, 0.82f);
@@ -289,7 +290,7 @@ namespace DeToutesPieces.EditorTools
             Label3D("Pieds ×4", adjustable, new Vector3(-0.49f, BenchHeight + 0.06f, 0.36f), 0.02f);
             Label3D("Tablette inférieure / Plateau", adjustable, new Vector3(0.5f, BenchHeight + 0.06f, 0.36f), 0.02f);
             Label3D("Vis 10118490 ×16\n(une seule référence)", adjustable, trayRoot.localPosition + new Vector3(0.09f, 0.06f, 0), 0.012f);
-            Label3D("Clé Allen 100006\n(serrage : phase 2)", adjustable, keySpot.transform.localPosition + new Vector3(-0.1f, 0.06f, 0), 0.012f);
+            Label3D("Clé Allen 100006\n(serrage final)", adjustable, keySpot.transform.localPosition + new Vector3(-0.1f, 0.06f, 0), 0.012f);
 
             ConfigureSteps(manager, gShelf, gTop, legGhosts, shelfSlots, topSlots);
             BuildPhase2(adjustable, m, manager);
@@ -760,6 +761,110 @@ namespace DeToutesPieces.EditorTools
             go.AddComponent<ToolDrawer>();
         }
 
+        // =====================================================================
+        // Session complète : déroulement, écrans, prise en main, inventaire, indices
+        // =====================================================================
+
+        [MenuItem("De Toutes Pièces/Ajouter le déroulement de session à la scène ouverte")]
+        public static void AddSessionSystemsInOpenScene()
+        {
+            var adjustable = GameObject.Find("Plan réglable");
+            var manager = Object.FindFirstObjectByType<AssemblyManager>();
+            if (adjustable == null || manager == null) { Debug.LogError("[De Toutes Pièces] Ouvrez la scène Atelier."); return; }
+            BuildSessionSystems(adjustable.transform, new Materials(), manager);
+            EditorSceneManager.MarkSceneDirty(adjustable.scene);
+            EditorSceneManager.SaveScene(adjustable.scene);
+            Debug.Log("[De Toutes Pièces] Déroulement de session ajouté : accueil, prise en main, inventaire, indices, pause, bilan.");
+        }
+
+        /// <summary>Idempotent : remplace les éléments existants portant les mêmes noms.</summary>
+        private static void BuildSessionSystems(Transform adjustable, Materials m, AssemblyManager manager)
+        {
+            var systems = manager.transform.parent;
+            foreach (var n in new[] { "Déroulement de session", "Indices progressifs", "Inventaire", "Prise en main", "Réglages appliqués" })
+            { var old = systems.Find(n); if (old) Object.DestroyImmediate(old.gameObject); }
+            foreach (var n in new[] { "Écran d'accueil", "Menu pause", "Écran de bilan" })
+            { var old = GameObject.Find(n); if (old && old.transform.parent == null) Object.DestroyImmediate(old); }
+            var oldZone = adjustable.Find("Zone d'exercice");
+            if (oldZone) Object.DestroyImmediate(oldZone.gameObject);
+
+            // Le montage démarre désormais à la demande du déroulement de session (Partie 1).
+            var mso = new SerializedObject(manager);
+            mso.FindProperty("startOnPlay").boolValue = false;
+            mso.ApplyModifiedPropertiesWithoutUndo();
+
+            new GameObject("Déroulement de session").AddComponent<SessionFlow>().transform.SetParent(systems, false);
+            new GameObject("Réglages appliqués").AddComponent<SettingsApplier>().transform.SetParent(systems, false);
+            new GameObject("Inventaire").AddComponent<InventoryActivity>().transform.SetParent(systems, false);
+            var hints = new GameObject("Indices progressifs").AddComponent<HintPresenter>();
+            hints.transform.SetParent(systems, false);
+            SetField(hints, "demonstrationMaterial", m.Demonstration);
+
+            new GameObject("Écran d'accueil").AddComponent<WelcomeScreen>();
+            new GameObject("Menu pause").AddComponent<PauseMenu>();
+            new GameObject("Écran de bilan").AddComponent<SummaryScreen>();
+
+            BuildPracticeZone(adjustable, m, systems);
+        }
+
+        /// <summary>Zone d'exercice de la prise en main (Partie 2) : cube, vis d'entraînement, trou cible.</summary>
+        private static void BuildPracticeZone(Transform adjustable, Materials m, Transform systems)
+        {
+            const float cube = 0.08f;
+            float top = BenchHeight + 0.03f; // dessus du support
+            var cubeDef = PracticeCubeDefinition();
+
+            var zone = new GameObject("Zone d'exercice").transform;
+            zone.SetParent(adjustable, false);
+            zone.gameObject.AddComponent<PracticeItem>();
+
+            var cubeBoxes = new[] { new Box("Bloc", new Vector3(0, cube / 2f, 0), Vector3.one * cube) };
+
+            // Cube posé avec son trou sur le côté : l'utilisateur doit le tourner d'un quart de tour.
+            var cubeGo = Part("Cube d'exercice", zone, new Vector3(-0.11f, top + 0.002f, -0.08f), Quaternion.Euler(0f, 90f, 0f), cubeBoxes, cubeDef, m.PracticeCube, m.Plastic, 0.4f, false);
+            Disc("Trou", cubeGo.transform, new Vector3(0, cube / 2f, -cube / 2f - 0.0004f), Vector3.back, 0.009f, m.Plastic);
+
+            var target = Ghost("Silhouette cube d'exercice", zone, new Vector3(0.09f, top + 0.002f, -0.04f), 0f, cubeBoxes, cubeDef, m.Ghost, false);
+            Disc("Trou", target.transform.Find("Silhouette"), new Vector3(0, cube / 2f, -cube / 2f - 0.0004f), Vector3.back, 0.009f, m.Ghost);
+            var slot = Slot(target, "exercice", "cube d'exercice", new Vector3(0, cube / 2f, -cube / 2f), Vector3.forward, m);
+            var tighten = slot.gameObject.AddComponent<TightenRequirement>();
+            var tso = new SerializedObject(tighten);
+            tso.FindProperty("slot").objectReferenceValue = slot;
+            tso.ApplyModifiedPropertiesWithoutUndo();
+
+            Cube("Coupelle", zone, new Vector3(0.0f, top + 0.0025f, -0.16f), new Vector3(0.05f, 0.005f, 0.05f), m.Tray);
+            Screw("Vis d'exercice", zone, new Vector3(0.0f, top + 0.005f + 0.013f, -0.16f), KitDataBuilder.KitScrew, m);
+            Label3D("Zone d'exercice", zone, new Vector3(0f, top + 0.16f, -0.08f), 0.02f);
+
+            var tutorial = new GameObject("Prise en main").AddComponent<TutorialController>();
+            tutorial.transform.SetParent(systems, false);
+            var so = new SerializedObject(tutorial);
+            so.FindProperty("practiceRoot").objectReferenceValue = zone.gameObject;
+            so.FindProperty("practiceTarget").objectReferenceValue = target;
+            so.FindProperty("practiceSlot").objectReferenceValue = slot;
+            so.FindProperty("practiceTighten").objectReferenceValue = tighten;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static PartDefinition PracticeCubeDefinition()
+        {
+            string folder = P2 + "/Data";
+            if (!AssetDatabase.IsValidFolder(folder)) AssetDatabase.CreateFolder(P2, "Data");
+            string path = folder + "/Part_CubeExercice.asset";
+            var d = AssetDatabase.LoadAssetAtPath<PartDefinition>(path);
+            if (d == null)
+            {
+                d = ScriptableObject.CreateInstance<PartDefinition>();
+                d.partId = "EXERCICE_CUBE";
+                d.displayName = "Cube d'exercice";
+                d.description = "Objet d'entraînement de la prise en main ; ne fait pas partie du kit.";
+                d.quantityInKit = 1;
+                d.verifiedAgainstNotice = false;
+                AssetDatabase.CreateAsset(d, path);
+            }
+            return d;
+        }
+
         /// <summary>Notice virtuelle (Partie 3) : tableau à droite du poste, symétrique du panneau de consigne.</summary>
         private static void BuildVirtualNotice(Camera cam, Materials m)
         {
@@ -936,7 +1041,7 @@ namespace DeToutesPieces.EditorTools
 
         private class Materials
         {
-            public readonly Material Floor, Wall, Wood, Metal, Panel, Plastic, Screw, Stand, Tray, Cale, Zone, ZoneBorder, Ghost, Pulse, Arrow, SlotRing, Key, Progress, NoticeDone, NoticeCurrent, NoticeScrew;
+            public readonly Material Floor, Wall, Wood, Metal, Panel, Plastic, Screw, Stand, Tray, Cale, Zone, ZoneBorder, Ghost, Pulse, Arrow, SlotRing, Key, Progress, NoticeDone, NoticeCurrent, NoticeScrew, PracticeCube, Demonstration;
             public readonly Mesh ArrowMesh, RotationArrowMesh;
 
             public Materials()
@@ -962,6 +1067,8 @@ namespace DeToutesPieces.EditorTools
                 NoticeDone = Mat("M_NoticeAcquis", new Color(0.6f, 0.63f, 0.66f), 0f, 0f, false, true);
                 NoticeCurrent = Mat("M_NoticeEtape", new Color(1f, 0.8f, 0.1f), 0f, 0f, false, true);
                 NoticeScrew = Mat("M_NoticeVis", new Color(1f, 0.45f, 0.1f), 0f, 0f, false, true);
+                PracticeCube = Mat("M_CubeExercice", new Color(0.85f, 0.55f, 0.25f), 0.3f);
+                Demonstration = Mat("M_Demonstration", new Color(1f, 0.8f, 0.1f, 0.45f), 0f, 0f, true, true);
 
                 string rotPath = P3 + "/Data/RotationArrowMesh.asset";
                 RotationArrowMesh = AssetDatabase.LoadAssetAtPath<Mesh>(rotPath);
@@ -985,11 +1092,11 @@ namespace DeToutesPieces.EditorTools
             {
                 switch (name)
                 {
-                    case "M_Silhouette": case "M_RepereTrou": case "M_CleAllen": case "M_VisZinguee":
+                    case "M_Silhouette": case "M_RepereTrou": case "M_CleAllen": case "M_VisZinguee": case "M_CubeExercice":
                     case "M_MetalNoir": case "M_PanneauNoir": case "M_PlastiqueNoir":
                         return P2 + "/Materials";
                     case "M_FlecheGuidage": case "M_ProgressionSerrage": case "M_Cale":
-                    case "M_NoticeAcquis": case "M_NoticeEtape": case "M_NoticeVis":
+                    case "M_NoticeAcquis": case "M_NoticeEtape": case "M_NoticeVis": case "M_Demonstration":
                         return P3 + "/Materials";
                     default:
                         return P4 + "/Materials";

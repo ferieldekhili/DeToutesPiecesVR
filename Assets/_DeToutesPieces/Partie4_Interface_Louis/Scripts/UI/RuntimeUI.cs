@@ -11,11 +11,12 @@ namespace DeToutesPieces.UI
     /// </summary>
     public static class RuntimeUI
     {
-        public static readonly Color Background = new Color(0.07f, 0.09f, 0.13f, 0.97f);
-        public static readonly Color CommandYellow = new Color(1f, 0.8f, 0.1f);
-        public static readonly Color InfoBlue = new Color(0.2f, 0.45f, 0.85f);
-        public static readonly Color Neutral = new Color(0.35f, 0.38f, 0.45f);
-        public static readonly Color TextDark = new Color(0.1f, 0.1f, 0.1f);
+        // Couleurs issues de l'identité commune (UITheme).
+        public static readonly Color Background = UITheme.Panel;
+        public static readonly Color CommandYellow = UITheme.Yellow;
+        public static readonly Color InfoBlue = UITheme.Blue;
+        public static readonly Color Neutral = UITheme.Neutral;
+        public static readonly Color TextDark = UITheme.TextOnYellow;
 
         public static RectTransform CreateWorldCanvas(Transform parent, string name, Vector2 sizePx)
         {
@@ -31,7 +32,8 @@ namespace DeToutesPieces.UI
             rt.sizeDelta = sizePx;
             rt.localScale = Vector3.one * 0.001f;
             var bg = go.AddComponent<Image>();
-            bg.color = Background;
+            UITheme.StyleBackground(bg);
+            UITheme.Decorate(rt);
             return rt;
         }
 
@@ -63,9 +65,11 @@ namespace DeToutesPieces.UI
             rt.pivot = new Vector2(0f, 1f);
             rt.anchoredPosition = new Vector2(topLeft.x, -topLeft.y);
             rt.sizeDelta = sizePx;
-            go.GetComponent<Image>().color = bg;
+            var img = go.GetComponent<Image>();
+            UITheme.StyleButton(img);
+            img.color = bg;
             var b = go.GetComponent<Button>();
-            var c = b.colors; c.disabledColor = new Color(0.45f, 0.45f, 0.45f, 0.5f); c.highlightedColor = new Color(1f, 1f, 1f, 0.85f); b.colors = c;
+            var c = b.colors; c.disabledColor = new Color(0.55f, 0.55f, 0.55f, 0.45f); c.highlightedColor = new Color(1f, 1f, 1f, 0.82f); c.pressedColor = new Color(0.8f, 0.8f, 0.8f, 1f); b.colors = c;
             if (onClick != null) b.onClick.AddListener(onClick);
             labelText = Text(rt, label, fontSize, new Vector2(6f, 4f), sizePx - new Vector2(12f, 8f), fg, FontStyles.Bold, TextAlignmentOptions.Center);
             return b;

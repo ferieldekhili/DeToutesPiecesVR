@@ -51,7 +51,7 @@ namespace DeToutesPieces.UI
         private float nextRefresh;
         private InputAction toggleAction;
 
-        private static readonly Color RowColor = new Color(0.12f, 0.15f, 0.2f, 0.95f);
+        private static readonly Color RowColor = UITheme.PanelRaised;
         private static readonly Color RowNeededColor = new Color(0.45f, 0.36f, 0.05f, 0.95f);
 
         public bool IsOpen => open;
@@ -259,7 +259,7 @@ namespace DeToutesPieces.UI
             var rt = (RectTransform)transform;
             float width = rt.rect.width > 1f ? rt.rect.width : 640f;
 
-            var header = MakeButton(rt, "En-tête", new Vector2(0, 0), new Vector2(width, headerHeight), new Color(1f, 0.8f, 0.1f), out headerLabel, new Color(0.1f, 0.1f, 0.1f), 22);
+            var header = MakeButton(rt, "En-tête", new Vector2(0, 0), new Vector2(width, headerHeight), UITheme.Yellow, out headerLabel, UITheme.TextOnYellow, 22);
             header.onClick.AddListener(Toggle);
 
             var bodyGo = new GameObject("Contenu", typeof(RectTransform), typeof(Image));
@@ -270,7 +270,8 @@ namespace DeToutesPieces.UI
             body.sizeDelta = new Vector2(width, entries.Count * rowHeight + 16f);
             body.anchoredPosition = new Vector2(0, -headerHeight - 4f);
             var bodyImg = bodyGo.GetComponent<Image>();
-            bodyImg.color = new Color(0.07f, 0.09f, 0.13f, 0.96f);
+            UITheme.StyleBackground(bodyImg);
+            UITheme.Decorate(body, null, false);
 
             for (int i = 0; i < entries.Count; i++)
             {
@@ -283,12 +284,13 @@ namespace DeToutesPieces.UI
                 rrt.sizeDelta = new Vector2(width - 16f, rowHeight - 6f);
                 rrt.anchoredPosition = new Vector2(0, -8f - i * rowHeight);
                 e.background = row.GetComponent<Image>();
+                UITheme.StyleButton(e.background);
                 e.background.color = RowColor;
 
                 MakeText(rrt, "Nom", e.label, 20, FontStyles.Bold, Color.white, new Vector2(0f, 0f), new Vector2(0.42f, 1f));
                 e.statusText = MakeText(rrt, "État", "", 18, FontStyles.Normal, new Color(0.8f, 0.88f, 1f), new Vector2(0.42f, 0f), new Vector2(0.78f, 1f));
 
-                var take = MakeButton(rrt, "Prendre", Vector2.zero, new Vector2(120f, rowHeight - 18f), new Color(0.2f, 0.45f, 0.85f), out _, Color.white, 18);
+                var take = MakeButton(rrt, "Prendre", Vector2.zero, new Vector2(120f, rowHeight - 18f), UITheme.Blue, out _, Color.white, 18);
                 var trt = (RectTransform)take.transform;
                 trt.anchorMin = trt.anchorMax = new Vector2(1f, 0.5f);
                 trt.pivot = new Vector2(1f, 0.5f);
@@ -309,6 +311,7 @@ namespace DeToutesPieces.UI
             rt.pivot = new Vector2(0.5f, 1f);
             rt.sizeDelta = size;
             rt.anchoredPosition = anchoredPos;
+            UITheme.StyleButton(go.GetComponent<Image>());
             go.GetComponent<Image>().color = bg;
             var b = go.GetComponent<Button>();
             var c = b.colors; c.disabledColor = new Color(0.45f, 0.45f, 0.45f, 0.6f); b.colors = c;

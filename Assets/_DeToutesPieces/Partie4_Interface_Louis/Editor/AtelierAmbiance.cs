@@ -66,6 +66,7 @@ namespace DeToutesPieces.EditorTools
             BuildZone(k, env.transform);
             BuildBench(k, station.transform, adjustable.transform);
             RestyleKit(k, adjustable.transform);
+            AtelierInterface.Apply(k);
             BuildLighting(env.transform);
             ConfigureRendering(env.transform);
 

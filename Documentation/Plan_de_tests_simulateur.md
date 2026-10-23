@@ -120,3 +120,30 @@ Cocher chaque ligne ; noter toute anomalie dans le tableau de la section 5.
 | 1 | | | | |
 | 2 | | | | |
 | 3 | | | | |
+
+## Mode clavier-souris (touche B ou F2)
+
+La touche **B** (ou **F2**) bascule entre le mode VR (casque ou XR Interaction Simulator) et le mode
+clavier-souris. Dans une version compilée sans casque actif, l'application démarre directement en
+clavier-souris. **H** affiche ou masque l'aide des commandes.
+
+| Action | Commande |
+|---|---|
+| Regarder | clic droit maintenu + souris |
+| Se déplacer | ZQSD (WASD en QWERTY) ou flèches ; A / E pour descendre / monter ; Maj pour aller plus vite |
+| Saisir / poser une pièce | clic gauche maintenu ; relâcher pour poser (mêmes validations qu'en VR) |
+| Rapprocher / éloigner la pièce | molette |
+| Tourner la pièce | R / T / Y (quart de tour), Ctrl + souris (rotation libre), Ctrl + molette (roulis) |
+| Serrer à la clé Allen | tenir la clé, viser une vis engagée (la clé s'emboîte), molette vers l'avant = sens horaire |
+| Boutons des panneaux | clic gauche |
+| Raccourcis | F indice, U annuler, Entrée suivant, O fenêtre d'outils, Échap pause |
+
+Tests à réaliser :
+1. Appuyer sur B à l'accueil : l'écran d'accueil revient devant la caméra, l'aide s'affiche en bas à gauche.
+2. Cliquer sur « Commencer avec la prise en main », saisir le cube d'exercice et le poser sur sa silhouette
+   (refus si l'orientation est mauvaise ; R / T / Y pour le tourner).
+3. Étapes 1 à 5 : poser pieds, tablette et plateau sur les silhouettes (elles passent au vert quand la pose est bonne),
+   puis glisser les vis du bac vers les repères jaunes.
+4. Étape 6 : saisir la clé Allen, viser chaque vis, tourner la molette vers l'avant ; tourner vers l'arrière doit
+   déclencher l'avertissement « sens inverse ».
+5. Appuyer de nouveau sur B : retour en VR, le simulateur reprend la main.

@@ -38,7 +38,8 @@ namespace DeToutesPieces.Guidance
             var m = AssemblyManager.Instance;
             if (m != null && m.CurrentGuidance != this) { timer = 0f; return; }
 
-            if (cam == null && Camera.main != null) cam = Camera.main.transform;
+            // Caméra active (VR ou clavier-souris) : réévaluée si le mode a changé.
+            if ((cam == null || !cam.gameObject.activeInHierarchy) && Camera.main != null) cam = Camera.main.transform;
             if (cam == null) return;
 
             var toTarget = transform.position - cam.position;

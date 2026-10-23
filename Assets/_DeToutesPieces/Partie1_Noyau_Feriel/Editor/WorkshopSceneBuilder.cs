@@ -193,6 +193,8 @@ namespace DeToutesPieces.EditorTools
             BuildInstructionPanel(xrCamera);
             BuildVirtualNotice(xrCamera, mats);
             BuildSessionSystems(adjustable, mats, manager);
+            // Bascule VR / clavier-souris (Partie 4) : touche B ou F2.
+            new GameObject("Bascule VR / clavier-souris").AddComponent<DeToutesPieces.UI.InputModeSwitcher>().transform.SetParent(systems, false);
 
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
             RenderSettings.ambientSkyColor = new Color(0.75f, 0.78f, 0.82f);

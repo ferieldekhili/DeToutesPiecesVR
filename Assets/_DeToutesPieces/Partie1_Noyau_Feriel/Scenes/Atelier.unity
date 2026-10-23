@@ -31105,6 +31105,7 @@ Transform:
   - {fileID: 436456691}
   - {fileID: 1635494219}
   - {fileID: 1961794576}
+  - {fileID: 829609109}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &762492403
@@ -34455,6 +34456,54 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 827065741}
   m_Mesh: {fileID: 863447117041684427, guid: b764e3431f8ef4eb5adeec7534c568dc, type: 2}
+--- !u!1 &829609108
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 829609109}
+  - component: {fileID: 829609110}
+  m_Layer: 0
+  m_Name: Bascule VR / clavier-souris
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &829609109
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 829609108}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 755693647}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &829609110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 829609108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea0b4ec3d61db45f4b0eb503b58f0fa3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DeToutesPieces.Partie4.Interface::DeToutesPieces.UI.InputModeSwitcher
+  desktopWhenNoHeadset: 1
+  startInDesktop: 0
+  standingEyeHeight: 1.62
+  seatedEyeHeight: 1.25
 --- !u!1 &832319875
 GameObject:
   m_ObjectHideFlags: 0

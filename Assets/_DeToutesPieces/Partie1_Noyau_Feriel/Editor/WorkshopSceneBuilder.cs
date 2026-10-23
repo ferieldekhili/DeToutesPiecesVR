@@ -199,6 +199,10 @@ namespace DeToutesPieces.EditorTools
             RenderSettings.ambientEquatorColor = new Color(0.55f, 0.55f, 0.55f);
             RenderSettings.ambientGroundColor = new Color(0.3f, 0.28f, 0.26f);
 
+            // Habillage visuel (Partie 4) : pièce, mobilier, établi, éclairage. Le précalcul se lance ensuite
+            // depuis le menu « De Toutes Pièces/Ambiance ».
+            DeToutesPieces.EditorTools.AtelierAmbiance.Apply(false, false);
+
             EditorSceneManager.SaveScene(scene, ScenePath);
             AddToBuildSettings(ScenePath);
             AssetDatabase.SaveAssets();

@@ -6,6 +6,7 @@
         "DeToutesPieces.Partie2.Interactions",
         "DeToutesPieces.Partie3.Guidage",
         "DeToutesPieces.Partie4.Interface",
+        "DeToutesPieces.Partie4.Interface.Editor",
         "Unity.XR.Interaction.Toolkit",
         "Unity.TextMeshPro",
         "UnityEngine.UI"

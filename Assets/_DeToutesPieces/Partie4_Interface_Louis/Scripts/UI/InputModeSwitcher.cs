@@ -268,7 +268,7 @@ namespace DeToutesPieces.UI
             Label(chip, "MODE CLAVIER-SOURIS   ·   B : passer en VR   ·   H : aide", 17f, UITheme.TextMain, TextAlignmentOptions.Center, FontStyles.Bold);
 
             // Aide des commandes, en bas à gauche.
-            helpPanel = Panel(hud, "Commandes", new Vector2(0f, 0f), new Vector2(24f, 24f), new Vector2(560f, 330f));
+            helpPanel = Panel(hud, "Commandes", new Vector2(0f, 0f), new Vector2(24f, 24f), new Vector2(600f, 370f));
             helpText = Label(helpPanel, BuildHelp(), 17f, UITheme.TextMain, TextAlignmentOptions.TopLeft, FontStyles.Normal);
             helpText.rectTransform.offsetMin = new Vector2(22f, 16f);
             helpText.rectTransform.offsetMax = new Vector2(-22f, -18f);
@@ -303,7 +303,7 @@ namespace DeToutesPieces.UI
                 $"{b}Regarder{e}   clic droit maintenu + souris\n" +
                 $"{b}Se déplacer{e}   {move} ou flèches · {down} / {up} : descendre / monter · Maj : plus vite\n" +
                 $"{b}Saisir / poser{e}   clic gauche maintenu, relâcher pour poser\n" +
-                $"{b}Distance{e}   molette · {b}Tourner{e}   R / T / Y (quart de tour), Ctrl + souris\n" +
+                $"{b}Distance{e}   molette · {b}Tourner{e}   R / T / Y : appui = quart de tour, maintenu = rotation continue (Maj : sens inverse) · Ctrl + souris\n" +
                 $"{b}Clé Allen{e}   visez la vis, puis molette vers l'avant pour serrer\n" +
                 $"{b}Panneaux{e}   clic gauche sur les boutons\n" +
                 $"{b}Raccourcis{e}   F indice · U annuler · Entrée suivant · O outils · Échap pause";

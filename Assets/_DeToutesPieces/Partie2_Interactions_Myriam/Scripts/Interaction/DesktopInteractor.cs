@@ -11,7 +11,8 @@ namespace DeToutesPieces.Interaction
     /// Appelle les mêmes points d'entrée de la logique métier (AssemblyPart.NotifyGrabbed / NotifyReleased) :
     /// silhouettes, trous de vis, clé Allen, annulation et bilan fonctionnent sans changement.
     /// - Clic gauche maintenu : saisir ; relâcher : poser (même validation qu'en VR).
-    /// - Molette : rapprocher / éloigner. Ctrl + souris : tourner librement. R / T / Y : quart de tour.
+    /// - Molette : rapprocher / éloigner. Ctrl + souris : tourner librement.
+    /// - R / T / Y : appui court = quart de tour exact ; maintenu = rotation continue ; Maj = sens inverse.
     /// - Aide à la profondeur : quand le pointeur vise une silhouette ou un trou compatible, la pièce est
     ///   amenée à sa profondeur ; l'orientation et la visée restent à la charge de l'utilisateur.
     /// - Clé Allen : viser une vis engagée emboîte la clé ; la molette vers l'avant serre (sens horaire).
@@ -27,6 +28,9 @@ namespace DeToutesPieces.Interaction
         [SerializeField] private float followSharpness = 25f;
         [SerializeField] private float rotateSensitivity = 0.35f;
         [SerializeField] private float twistPerNotch = 18f;
+        [Tooltip("Durée d'appui (s) au-delà de laquelle R / T / Y tournent en continu au lieu d'un quart de tour.")]
+        [SerializeField] private float holdThreshold = 0.22f;
+        [SerializeField] private float continuousSpeed = 90f;
 
         /// <summary>Distance de l'interface (panneaux) sous le pointeur, fournie par la couche interface ; infini si aucune.</summary>
         public static Func<Vector2, float> UiHitDistance;
@@ -43,6 +47,8 @@ namespace DeToutesPieces.Interaction
         private Quaternion heldRotation;
         private float holdDistance;
         private PartHighlighter hovered;
+        private readonly float[] keyDown = new float[3];
+        private readonly bool[] keyContinuous = new bool[3];
         private readonly List<GhostSnapTarget> ghosts = new List<GhostSnapTarget>();
         private float nextGhostScan;
 
@@ -142,10 +148,12 @@ namespace DeToutesPieces.Interaction
 
             if (heldKey != null && keyTip != null && HandleKey(ray, notch)) return;
 
-            // Rotation : quarts de tour au clavier, rotation libre avec Ctrl + souris.
-            if (kb.rKey.wasPressedThisFrame) heldRotation = Quaternion.AngleAxis(90f, Vector3.up) * heldRotation;
-            if (kb.tKey.wasPressedThisFrame) heldRotation = Quaternion.AngleAxis(90f, transform.right) * heldRotation;
-            if (kb.yKey.wasPressedThisFrame) heldRotation = Quaternion.AngleAxis(90f, transform.forward) * heldRotation;
+            // Rotation au clavier : appui court sur R / T / Y = quart de tour exact (aligné sur la grille de 90°),
+            // appui maintenu = rotation continue ; Maj inverse le sens. Ctrl + souris : rotation libre.
+            bool reverse = kb.leftShiftKey.isPressed || kb.rightShiftKey.isPressed;
+            KeyRotation(0, kb.rKey, Vector3.up, reverse);
+            KeyRotation(1, kb.tKey, NearestAxis(Vector3.ProjectOnPlane(transform.right, Vector3.up)), reverse);
+            KeyRotation(2, kb.yKey, NearestAxis(Vector3.ProjectOnPlane(transform.forward, Vector3.up)), reverse);
             if (ctrl)
             {
                 var d = mouse.delta.ReadValue() * rotateSensitivity;
@@ -164,6 +172,38 @@ namespace DeToutesPieces.Interaction
             held.transform.SetPositionAndRotation(
                 Vector3.Lerp(held.transform.position, target, k),
                 Quaternion.Slerp(held.transform.rotation, heldRotation, k));
+        }
+
+        private void KeyRotation(int i, UnityEngine.InputSystem.Controls.KeyControl key, Vector3 axis, bool reverse)
+        {
+            float sign = reverse ? -1f : 1f;
+            if (key.wasPressedThisFrame) { keyDown[i] = Time.unscaledTime; keyContinuous[i] = false; }
+            if (key.isPressed && Time.unscaledTime - keyDown[i] > holdThreshold)
+            {
+                keyContinuous[i] = true;
+                heldRotation = Quaternion.AngleAxis(sign * continuousSpeed * Time.unscaledDeltaTime, axis) * heldRotation;
+            }
+            if (key.wasReleasedThisFrame && !keyContinuous[i])
+                heldRotation = SnapToGrid(Quaternion.AngleAxis(sign * 90f, axis) * SnapToGrid(heldRotation));
+        }
+
+        /// <summary>Axe du repère monde le plus proche (les silhouettes sont alignées sur ce repère).</summary>
+        private static Vector3 NearestAxis(Vector3 v)
+        {
+            var a = new Vector3(Mathf.Abs(v.x), Mathf.Abs(v.y), Mathf.Abs(v.z));
+            if (a.x >= a.y && a.x >= a.z) return new Vector3(Mathf.Sign(v.x), 0f, 0f);
+            if (a.y >= a.z) return new Vector3(0f, Mathf.Sign(v.y), 0f);
+            return new Vector3(0f, 0f, Mathf.Sign(v.z));
+        }
+
+        /// <summary>Orientation la plus proche parmi les 24 orientations alignées sur les axes : angles exacts de 90°.</summary>
+        public static Quaternion SnapToGrid(Quaternion q)
+        {
+            var up = NearestAxis(q * Vector3.up);
+            var fwd = q * Vector3.forward;
+            fwd -= Vector3.Project(fwd, up);
+            if (fwd.sqrMagnitude < 1e-6f) fwd = Vector3.Cross(up, Vector3.right);
+            return Quaternion.LookRotation(NearestAxis(fwd), up);
         }
 
         /// <summary>Clé Allen : emboîtement assisté puis serrage à la molette. Vrai si la clé est prise en charge.</summary>

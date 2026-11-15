@@ -56,7 +56,9 @@
  Maj ................................. se déplacer plus vite
  Clic gauche maintenu ................ saisir une pièce ; relâcher = poser
  Molette ............................. rapprocher / éloigner la pièce tenue
- R / T / Y ........................... quart de tour de la pièce tenue
+ R / T / Y, appui court .............. quart de tour exact (90°) de la pièce
+                                       tenue, recalée sur les angles droits
+ R / T / Y, appui maintenu ........... rotation continue (Maj : sens inverse)
  Ctrl + souris (Ctrl + molette) ...... rotation libre de la pièce tenue
  Clé Allen ........................... la tenir et viser une vis engagée
                                        (emboîtement automatique), molette

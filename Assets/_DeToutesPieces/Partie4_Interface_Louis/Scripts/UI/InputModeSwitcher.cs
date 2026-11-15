@@ -138,6 +138,10 @@ namespace DeToutesPieces.UI
 
             Current = mode;
             lastMode = mode;
+            // Clavier-souris : images limitées à 60 par seconde (moins de chauffe, rendu régulier).
+            // En VR, la cadence est imposée par le casque : pas de limite logicielle.
+            QualitySettings.vSyncCount = 0;
+            Application.targetFrameRate = mode == Mode.ClavierSouris ? 60 : -1;
             ConfigureUI();
             if (hud != null) hud.gameObject.SetActive(mode == Mode.ClavierSouris);
             ReplaceScreens(mode == Mode.ClavierSouris);

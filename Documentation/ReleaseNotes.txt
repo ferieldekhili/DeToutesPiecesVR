@@ -67,6 +67,7 @@
  H ................................... afficher / masquer l'aide
  Raccourcis (les deux modes) : F indice, U annuler, Entrée étape suivante,
  O fenêtre d'outils, Échap pause, B / F2 changer de mode.
+ En mode clavier-souris, l'affichage est limité à 60 images par seconde.
 
 5. ACTIONS POSSIBLES ET AIDES
 ---------------------------------------------------------------------

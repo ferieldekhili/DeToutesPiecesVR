@@ -45,9 +45,10 @@ namespace DeToutesPieces.UI
         private void Build()
         {
             canvas = RuntimeUI.CreateWorldCanvas(transform, "Écran d'accueil", new Vector2(780, 630));
-            RuntimeUI.Text(canvas, "De Toutes Pièces VR", 44, new Vector2(30, 24), new Vector2(720, 60), RuntimeUI.CommandYellow, FontStyles.Bold);
+            RuntimeUI.Text(canvas, "De Toutes Pièces VR", 44, new Vector2(30, 24), new Vector2(540, 60), RuntimeUI.CommandYellow, FontStyles.Bold);
+            AddSchoolLogo();
             RuntimeUI.Text(canvas, "Apprendre à monter la table de chevet IKEA KNARREVIK, étape par étape.\n" +
-                                   "Durée indicative : 15 à 20 minutes. Les vis, la clé et les pièces se manipulent avec la gâchette latérale.",
+                                   "Durée indicative : 15 à 20 minutes. Les pièces, les vis et la clé se saisissent avec la gâchette latérale (VR) ou le clic gauche (clavier-souris).",
                 20, new Vector2(30, 86), new Vector2(720, 100), Color.white);
 
             RuntimeUI.Text(canvas, "Main dominante", 22, new Vector2(30, 214), new Vector2(260, 40), new Color(0.8f, 0.88f, 1f), FontStyles.Bold);
@@ -65,8 +66,34 @@ namespace DeToutesPieces.UI
             resume = RuntimeUI.Button(canvas, "Reprendre", new Vector2(30, 494), new Vector2(720, 56), RuntimeUI.InfoBlue, Color.white,
                 () => SessionFlow.Instance?.ResumeSession(), out resumeLabel);
 
-            RuntimeUI.Text(canvas, "Pointez un bouton avec le rayon et validez avec la gâchette avant (au simulateur : clic gauche).",
+            RuntimeUI.Text(canvas, "VR : pointez un bouton avec le rayon et validez avec la gâchette avant. Clavier-souris : clic gauche. Touche B : changer de mode.",
                 17, new Vector2(30, 572), new Vector2(720, 40), new Color(0.75f, 0.78f, 0.82f));
+        }
+
+        /// <summary>Logo de l'EFREI (projet réalisé dans le cadre du cours), sur une plaque claire en haut à droite.</summary>
+        private void AddSchoolLogo()
+        {
+            var logo = Resources.Load<Sprite>("DeToutesPieces/Logo_EFREI");
+            if (logo == null) return;
+            var plate = new GameObject("Logo EFREI", typeof(RectTransform), typeof(Image));
+            var rt = (RectTransform)plate.transform;
+            rt.SetParent(canvas, false);
+            rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(1f, 1f);
+            rt.anchoredPosition = new Vector2(-24f, -18f);
+            rt.sizeDelta = new Vector2(176f, 76f);
+            var bg = plate.GetComponent<Image>();
+            UITheme.StyleButton(bg);
+            bg.color = Color.white;
+            bg.raycastTarget = false;
+            var img = new GameObject("Image", typeof(RectTransform), typeof(Image));
+            var irt = (RectTransform)img.transform;
+            irt.SetParent(rt, false);
+            irt.anchorMin = Vector2.zero; irt.anchorMax = Vector2.one;
+            irt.offsetMin = new Vector2(8f, 6f); irt.offsetMax = new Vector2(-8f, -6f);
+            var i = img.GetComponent<Image>();
+            i.sprite = logo;
+            i.preserveAspect = true;
+            i.raycastTarget = false;
         }
 
         private void RefreshOptions()

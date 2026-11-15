@@ -32,6 +32,9 @@ namespace DeToutesPieces.UI
         [SerializeField] private float seatedEyeHeight = 1.25f;
 
         public static InputModeSwitcher Instance { get; private set; }
+
+        // Mode choisi pendant cette exécution : conservé quand la scène est rechargée (« Recommencer »).
+        private static Mode? lastMode;
         public Mode Current { get; private set; } = Mode.VR;
         public event Action<Mode> ModeChanged;
 
@@ -84,9 +87,29 @@ namespace DeToutesPieces.UI
 
             bool desktop = startInDesktop;
 #if !UNITY_EDITOR
-            if (desktopWhenNoHeadset && !UnityEngine.XR.XRSettings.isDeviceActive) desktop = true;
+            // Sur PC, la VR n'est pas lancée d'office : on tente de démarrer OpenXR (casque relié par Link,
+            // SteamVR...). Sans casque, l'application reste utilisable au clavier et à la souris.
+            bool headset = HeadsetActive() || TryStartXR();
+            if (desktopWhenNoHeadset && !headset) desktop = true;
 #endif
+            if (lastMode.HasValue) desktop = lastMode.Value == Mode.ClavierSouris;
             if (desktop) SetMode(Mode.ClavierSouris, false);
+        }
+
+        private static bool HeadsetActive()
+        {
+            var gs = UnityEngine.XR.Management.XRGeneralSettings.Instance;
+            return gs != null && gs.Manager != null && gs.Manager.activeLoader != null;
+        }
+
+        private static bool TryStartXR()
+        {
+            var gs = UnityEngine.XR.Management.XRGeneralSettings.Instance;
+            if (gs == null || gs.Manager == null) return false;
+            if (gs.Manager.activeLoader == null) gs.Manager.InitializeLoaderSync();
+            if (gs.Manager.activeLoader == null) return false;
+            gs.Manager.StartSubsystems();
+            return true;
         }
 
         public void Toggle() => SetMode(Current == Mode.VR ? Mode.ClavierSouris : Mode.VR, true);
@@ -114,6 +137,7 @@ namespace DeToutesPieces.UI
             }
 
             Current = mode;
+            lastMode = mode;
             ConfigureUI();
             if (hud != null) hud.gameObject.SetActive(mode == Mode.ClavierSouris);
             ReplaceScreens(mode == Mode.ClavierSouris);
@@ -123,7 +147,7 @@ namespace DeToutesPieces.UI
             if (mode == Mode.ClavierSouris)
                 FeedbackBus.Emit(FeedbackKind.Info, null, "Mode clavier-souris : clic gauche pour saisir, clic droit maintenu pour regarder. B pour revenir en VR, H pour l'aide.");
             else
-                FeedbackBus.Emit(FeedbackKind.Info, null, UnityEngine.XR.XRSettings.isDeviceActive || Application.isEditor
+                FeedbackBus.Emit(FeedbackKind.Info, null, HeadsetActive() || Application.isEditor
                     ? "Mode VR. Appuyez sur B pour repasser en clavier-souris."
                     : "Mode VR : aucun casque n'est détecté. Appuyez sur B pour revenir au clavier-souris.");
         }

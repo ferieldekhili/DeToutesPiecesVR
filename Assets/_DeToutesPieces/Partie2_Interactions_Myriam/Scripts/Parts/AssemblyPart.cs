@@ -38,6 +38,7 @@ namespace DeToutesPieces.Parts
         public event Action<bool> GrabbableChanged;
 
         private Rigidbody rb;
+        private RigidbodyInterpolation freeInterpolation;
         // Pose de rangement exprimée dans le repère du parent d'origine : elle suit
         // automatiquement le plan de travail quand sa hauteur est réglée.
         private Vector3 homeLocalPosition;
@@ -54,6 +55,7 @@ namespace DeToutesPieces.Parts
         private void Awake()
         {
             rb = GetComponent<Rigidbody>();
+            freeInterpolation = rb.interpolation;
             homeParent = transform.parent;
             SetHomePose(transform.position, transform.rotation);
         }
@@ -131,6 +133,9 @@ public void SnapTo(GhostSnapTarget target)
             State = PartState.Placed;
             HeldParts.Remove(this);
             StopPhysics(true);
+            // Un corps cinématique interpolé réécrit sa propre pose à chaque image : fixé sur le support
+            // tournant, il « glisserait » quand le support pivote. Sans interpolation, il suit son parent.
+            rb.interpolation = RigidbodyInterpolation.None;
             transform.SetParent(anchor, false);
             transform.localPosition = localPosition;
             transform.localRotation = localRotation;
@@ -143,6 +148,7 @@ public void SnapTo(GhostSnapTarget target)
             PlacedOn = null;
             State = PartState.Free;
             transform.SetParent(homeParent, true);
+            rb.interpolation = freeInterpolation;
             StopPhysics(false);
             GrabbableChanged?.Invoke(true);
             Unsnapped?.Invoke(this);

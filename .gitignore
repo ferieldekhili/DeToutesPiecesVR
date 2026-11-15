@@ -48,3 +48,6 @@ crashlytics-build.properties
 
 # macOS
 .DS_Store
+
+# Captures de contrôle
+/Captures_Audit/

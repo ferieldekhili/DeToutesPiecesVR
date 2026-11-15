@@ -1,0 +1,165 @@
+=====================================================================
+ DE TOUTES PIÈCES VR — Release Notes (version 1.0.0)
+ Assistance au montage d'un meuble en kit en réalité virtuelle
+ Cas pratique : table de chevet IKEA KNARREVIK (notice AA-2547698-1)
+ EFREI — Applications de la réalité virtuelle et augmentée — 2026-2027
+ Équipe : Feriel Eya DEKHILI, Myriam HAJI, Maxime DELEFOSSE, Louis VOVAN
+=====================================================================
+
+1. LANCEMENT
+---------------------------------------------------------------------
+- Windows 10/11 64 bits. Décompresser l'archive puis lancer
+  DeToutesPiecesVR.exe (garder le dossier DeToutesPiecesVR_Data à côté).
+- Au démarrage : logo EFREI, puis l'atelier et l'écran d'accueil.
+- AVEC CASQUE : brancher le casque (Meta Quest en Quest Link / Air Link,
+  ou tout casque OpenXR, ex. SteamVR) AVANT de lancer l'application,
+  avec le runtime OpenXR actif. L'application démarre alors en VR.
+- SANS CASQUE : l'application démarre automatiquement en mode
+  clavier-souris. La touche B (ou F2) bascule entre les deux modes.
+- Espace conseillé en VR : 2 m x 1,5 m libres. Utilisation debout ou assis
+  (le plan de travail s'abaisse de 18 cm en position assise).
+
+2. DÉROULEMENT D'UNE SESSION (15 à 20 min)
+---------------------------------------------------------------------
+ 1) Accueil : choix de la main dominante et de la posture ; démarrage
+    avec ou sans prise en main ; reprise au dernier jalon enregistré.
+ 2) Prise en main (3 exercices) : saisir et orienter un cube, engager
+    une vis, serrer à la clé Allen.
+ 3) Inventaire du kit : saisir chaque type d'élément pour l'identifier
+    (4 pieds, tablette inférieure, plateau, 16 vis, clé Allen).
+ 4) Montage guidé en 6 étapes, comme la notice :
+    étapes 1 à 5 = poser les pièces sur leurs silhouettes et engager
+    les vis sans les serrer ; étape 6 = serrage final des 16 vis à la
+    clé Allen puis contrôle d'équerre (regarder la face avant 2 s).
+ 5) Bilan : temps actif, étapes réussies sans aide, erreurs, aides,
+    annulations (sans note) + rappels de sécurité de la notice.
+
+3. CONTRÔLES — MODE VR (manettes Meta Quest / Oculus Touch)
+---------------------------------------------------------------------
+ Gâchette latérale (grip), maintenue ... saisir / porter ; relâcher pour poser
+ Rayon + gâchette avant .............. cliquer sur les boutons des panneaux
+ Bouton A (main dominante) ........... demander un indice (3 niveaux)
+ Bouton B (main dominante) ........... annuler la dernière action
+ Bouton X / primaire main non dom. ... ouvrir / fermer la fenêtre d'outils
+ Bouton Menu ......................... pause et réglages
+ Clé Allen ........................... approcher l'embout de la vis dans
+                                       son axe (emboîtement automatique),
+                                       puis tourner le poignet dans le sens
+                                       horaire (flèche jaune)
+ Les boutons A/B suivent la main dominante choisie à l'accueil.
+
+4. CONTRÔLES — MODE CLAVIER-SOURIS (touche B pour basculer)
+---------------------------------------------------------------------
+ Clic droit maintenu + souris ........ regarder autour de soi
+ ZQSD (AZERTY) / WASD (QWERTY), flèches  se déplacer
+ A / E (AZERTY) ...................... descendre / monter
+ Maj ................................. se déplacer plus vite
+ Clic gauche maintenu ................ saisir une pièce ; relâcher = poser
+ Molette ............................. rapprocher / éloigner la pièce tenue
+ R / T / Y ........................... quart de tour de la pièce tenue
+ Ctrl + souris (Ctrl + molette) ...... rotation libre de la pièce tenue
+ Clé Allen ........................... la tenir et viser une vis engagée
+                                       (emboîtement automatique), molette
+                                       vers l'avant = serrer
+ Clic gauche sur les boutons ......... utiliser les panneaux
+ H ................................... afficher / masquer l'aide
+ Raccourcis (les deux modes) : F indice, U annuler, Entrée étape suivante,
+ O fenêtre d'outils, Échap pause, B / F2 changer de mode.
+
+5. ACTIONS POSSIBLES ET AIDES
+---------------------------------------------------------------------
+- Silhouettes fantômes : vertes si la pièce est bien placée et orientée,
+  rouges sinon ; alignement automatique dans les tolérances (6 cm, 20°).
+- Flèche jaune : désigne la prochaine opération ; anneau jaune sur le trou.
+- Support tournant : présente automatiquement la face à traiter.
+- Notice virtuelle synchronisée avec l'étape (maquette 3D, feuilletable).
+- Fenêtre d'outils déroulante : liste des éléments, état, bouton
+  « Prendre » qui présente l'élément devant l'utilisateur.
+- Indices gradués : texte -> élément qui clignote -> démonstration.
+- Annulation pas à pas, retour automatique d'une pièce tombée.
+- Retours sonores (générés par code), visuels et vibrations.
+- Réglages (pause) : volume, vibrations, taille des textes, posture,
+  main dominante, recommencer, quitter.
+
+6. REMARQUES, LIMITES ET BUGS CONNUS
+---------------------------------------------------------------------
+- Build PC testée au clavier-souris ; en VR, l'application a été testée
+  avec le XR Interaction Simulator d'Unity. Les essais sur casque réel
+  restent à mener : les tolérances (pose, emboîtement de la clé) devront
+  sans doute être ajustées.
+- Le casque doit être branché et le runtime OpenXR actif AVANT le
+  lancement ; sinon l'application reste en clavier-souris (relancer).
+- Simplifications volontaires : pas de poids des pièces, pas de couple de
+  serrage (270° de rotation suffisent), pas de suivi des doigts, vis
+  engagées automatiquement près du trou.
+- Dimensions du meuble estimées (la notice ne donne pas de cotes).
+- Éclairage indirect précalculé par sondes de lumière uniquement (pas de
+  lightmaps) : surfaces un peu uniformes, pas d'ombres de contact.
+- Les étiquettes flottantes de l'inventaire peuvent chevaucher les
+  étiquettes de la réglette de l'établi.
+- Mode clavier-souris : la clé Allen se tourne à la molette (geste
+  différent du poignet en VR).
+- Voies d'amélioration : essais sur casque avec des débutants, build
+  Android autonome pour Meta Quest, suivi des mains, autres meubles du
+  catalogue, mode « libre » sans guidage pour s'évaluer, sons enregistrés.
+
+7. QUI A FAIT QUOI
+---------------------------------------------------------------------
+Le projet Unity est organisé en quatre parties, une par membre :
+- Feriel Eya DEKHILI — Partie 1, Noyau : gestionnaire de montage (étapes,
+  validation, annulation, indices), déroulement de session (accueil,
+  prise en main, inventaire, montage, bilan), réglages et sauvegarde,
+  poste réglable et support tournant, construction de la scène, données
+  du kit KNARREVIK, intégration, tests, build et livraison (GitHub).
+- Myriam HAJI — Partie 2, Interactions : saisie des pièces (XR
+  Interaction Toolkit), silhouettes fantômes et alignement assisté, trous
+  de vis et engagement, clé Allen (emboîtement, serrage, sens), prise en
+  main, raccourcis manettes, saisie à la souris du mode clavier-souris.
+- Maxime DELEFOSSE — Partie 3, Guidage : flèche de guidage, guide de
+  rotation de la clé, notice virtuelle synchronisée, inventaire du kit,
+  indices progressifs (surbrillance, démonstration), contrôle d'équerre.
+- Louis VOVAN — Partie 4, Interface : panneau de consigne, fenêtre
+  d'outils, écrans d'accueil / pause / bilan, retours sonores et
+  haptiques, identité visuelle de l'interface, habillage de l'atelier
+  (pièce, mobilier, établi, éclairage), bascule VR / clavier-souris.
+- Document de conception 3I² : rédigé par l'ensemble du groupe.
+Un assistant IA (Claude, Anthropic) a été utilisé comme aide à la
+programmation (relié à l'éditeur Unity) et à la rédaction ; les choix de
+conception sont ceux du groupe (voir le document de conception).
+
+8. ORIGINE DES ASSETS
+---------------------------------------------------------------------
+Fabriqués par l'équipe (aucun fichier externe) :
+- Tous les modèles 3D de la scène (pièce, mobilier, établi, outils,
+  meuble KNARREVIK, clé, vis) : générés par code (primitives et
+  maillages à arêtes arrondies créés par nos scripts d'éditeur).
+- Toutes les textures (chêne, parquet, enduit, feutre, carton, panneau
+  perforé, tapis de montage, vue extérieure) et les sprites d'interface :
+  générés par code.
+- Tous les sons : synthétisés par code au lancement (ProceduralAudio).
+- Tous les scripts C# du dossier Assets/_DeToutesPieces.
+
+Non fabriqués par l'équipe :
+- Moteur Unity 6.5 (6000.5.10f1) et paquets officiels Unity :
+  Universal Render Pipeline, Input System, XR Interaction Toolkit 3.6.1,
+  OpenXR Plugin 1.18, uGUI / TextMeshPro.
+  https://unity.com — gratuit (Unity Personal) — Unity Companion License
+  / conditions d'utilisation Unity (https://unity.com/legal/licenses).
+- Exemples « Starter Assets » et « XR Interaction Simulator » du
+  XR Interaction Toolkit (rig XR, manettes, simulateur pour les tests,
+  quelques sprites d'interface) :
+  https://docs.unity3d.com/Packages/com.unity.xr.interaction.toolkit@3.6
+  — gratuit — Unity Companion License.
+- Police LiberationSans (TextMeshPro) — gratuite — SIL Open Font License.
+- Logo EFREI (écran de lancement et accueil) : propriété de l'EFREI,
+  fourni par l'école, utilisé pour ce projet pédagogique.
+- Meuble de référence : table de chevet IKEA KNARREVIK, notice de montage
+  AA-2547698-1 (https://www.ikea.com) — utilisée comme référence de forme
+  et d'ordre de montage ; aucun fichier ni logo IKEA n'est intégré.
+
+9. CONTENU DE L'ARCHIVE
+---------------------------------------------------------------------
+- DeToutesPiecesVR/ ................ build Windows 64 bits
+- ReleaseNotes.txt ................. ce fichier
+- Screenshot_DeToutesPiecesVR_N.png  captures 1920x1080
+- VideoWalkthrough_DeToutesPiecesVR.mp4  vidéo de démonstration

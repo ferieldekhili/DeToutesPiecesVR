@@ -29,7 +29,7 @@ namespace DeToutesPieces.EditorTools
     public static class WorkshopSceneBuilder
     {
         private const string Root = "Assets/_DeToutesPieces";
-        // Une partie du projet par membre du groupe (voir CLAUDE.md).
+        // Une partie du projet par membre du groupe.
         public const string P1 = Root + "/Partie1_Noyau_Feriel";
         public const string P2 = Root + "/Partie2_Interactions_Myriam";
         public const string P3 = Root + "/Partie3_Guidage_Maxime";

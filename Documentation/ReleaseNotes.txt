@@ -126,9 +126,6 @@ Le projet Unity est organisé en quatre parties, une par membre :
   haptiques, identité visuelle de l'interface, habillage de l'atelier
   (pièce, mobilier, établi, éclairage), bascule VR / clavier-souris.
 - Document de conception 3I² : rédigé par l'ensemble du groupe.
-Un assistant IA (Claude, Anthropic) a été utilisé comme aide à la
-programmation (relié à l'éditeur Unity) et à la rédaction ; les choix de
-conception sont ceux du groupe (voir le document de conception).
 
 8. ORIGINE DES ASSETS
 ---------------------------------------------------------------------
